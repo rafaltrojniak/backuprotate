@@ -1,2 +1,37 @@
 = About =
-This project aims to solve simple problem : backu rotating.
+This project aims to solve simple problem : backup rotating.
+
+= How it should work =
+
+Simple using scenario
+
+== Pickup dir ==
+
+New directories consisting of backups should be put into backups/pickup dir.
+Directory name should be formated as ISO8601 time.
+This will be used as backup creation time during processing.
+
+== Storing dirs ==
+
+In conifg.php you can configure many storing dirs.
+Directories from the pickup dir will be linked to the storing dirs according to storing-dir configuration.
+
+=== Storing dir configuration ===
+
+* group - string consisting of fields that will be used to build ordering token. Each symbol is translated to corresponding time part as in date() function.
+* offset - offset of the directory - time to add to each backup in seconds
+* count - count of backups kept in that directory
+
+= TODO =
+- Rotating Backups
+- Removing backups over count
+- 
+== Wish list==
+
+- Generating and keeping checksums 
+- Checking checksums
+
+- Signing / checking signatures on checksums file ( GPG - signatures)
+
+- Running backup checks after pickup
+- Scheduling additional checks after some time
