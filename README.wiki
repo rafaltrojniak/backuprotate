@@ -23,15 +23,15 @@ Directories from the pickup dir will be linked to the storing dirs according to 
 * count - count of backups kept in that directory
 
 = TODO =
-- Rotating Backups
-- Removing backups over count
-- 
+* Rotating Backups
+* Removing backups over count
+
 == Wish list==
 
-- Generating and keeping checksums 
-- Checking checksums
+* Generating and keeping checksums 
+* Checking checksums
 
-- Signing / checking signatures on checksums file ( GPG - signatures)
+* Signing / checking signatures on checksums file ( GPG - signatures)
 
-- Running backup checks after pickup
-- Scheduling additional checks after some time
+* Running backup checks after pickup
+* Scheduling additional checks after some time
