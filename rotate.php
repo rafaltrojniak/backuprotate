@@ -3,18 +3,76 @@ $config=require('config.php');
 
 function getListFromDir($directory)
 {
-	$dir = new DirectoryIterator($directory);
-	$list=array();
-	foreach ($dir as $fileinfo) {
-		if (!$fileinfo->isDot()) {
-			$name=$fileinfo->getFilename();
-			$list[$name]=array(
-				'date'=>DateTime::createFromFormat(DateTime::ISO8601,$name)
-			);
-		}
-	}
 
 	return $list;
 }
 
-var_dump(getListFromDir($config['pickupDir']));
+$commands=array(
+	// Array(Short,Long,Description)
+	array('h','help','Help info'),
+	array('l','list','List backups'),
+	array('b:','backups:','Backup group (default to pickup)','group'),
+);
+
+$shortOpt=null;
+$longOpt=array();
+foreach($commands as $com){
+	list($short,$long,$description)=$com;
+	$shortOpt.=$short;
+	if(!is_null($long)){
+		$longOpt[]=$long;
+	}
+}
+
+$commandQueue=array();
+$backup='pickup';
+
+spl_autoload_register();
+spl_autoload_register(function($name){
+	$file='inc/'.str_replace('\\','/',$name).'.php';
+	require_once($file);
+});
+
+/* Parsing command-line options */
+$options=getopt( $shortOpt,$longOpt);
+foreach($options as $option=>$val){
+	switch($option){
+	case 'b':
+	case 'backup':
+		$backup=$val;
+		break;
+	case 'list':
+	case 'l':
+		$commandQueue[]=new Command\ListBackup($backup);
+		break;
+	default:
+		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
+	case 'help':
+	case 'h':
+		fprintf(STDERR,"Options :\n");
+		foreach($commands  as $com){
+			list($short,$long,$description)=$com;
+			$options=array();
+			$param=null;
+			if(count($com)>=4){
+				$param='='.$com[3];
+				$short=trim($short,':');
+				$long=trim($long,':');
+			}
+			if(!is_null($short)){
+				$options[]='-'.$short;
+			}
+			if(!is_null($long)){
+				$options[]='--'.$long;
+			}
+			fprintf(STDERR,"\t".implode('|',$options)."$param\t$description\n");
+		}
+		exit();
+		break;
+	}
+}
+
+foreach($commandQueue as $com)
+{
+	$com->run($config);
+}
