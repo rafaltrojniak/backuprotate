@@ -81,9 +81,13 @@ foreach($options as $option=>$val){
 
 if(!count($commandQueue)){
 	echo "Command queue is empty\n";
+	exit(1);
 }
 
 foreach($commandQueue as $com)
 {
-	$com->run($store);
+	$ret=$com->run($store);
+	if($ret){
+		exit($ret);
+	}
 }

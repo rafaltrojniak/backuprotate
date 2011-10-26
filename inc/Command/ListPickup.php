@@ -21,7 +21,6 @@ class ListPickup implements \Command
 		foreach($pickup->getBackups() as $backup){
 			echo $backup->getCreation()->format('Y-m-d H:i T')."\n";
 		}
-		return 0;
 	}
 }
 
