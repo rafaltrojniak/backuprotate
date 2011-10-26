@@ -8,15 +8,19 @@ namespace Command;
 class ListBackup implements \Command
 {
 	
-	private $backup;
-	function __construct($backup)
+	function __construct()
 	{
-		$this->backup=$backup;
 	}
 
-	function run($config)
+	function run(\BackupStore $store)
 	{
-		$dir=new \BackupDir($config['pickupDir']);
-		var_dump($dir->getList());
+		$dirs=$store->getDirs();
+		foreach($dirs as $id=>$dir){
+			echo "[$id]:\n";
+			foreach($dir->getBackups() as $backup){
+				echo "\t".$backup->getCreated()->format(DateTime::ISO8601)."\n";
+
+			}
+		}
 	}
 }

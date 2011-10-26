@@ -1,30 +1,35 @@
 <?php
 return array(
 	'backups'=>array(
-		dirname(__FILE__).'/backups/hourly'=>array(
+		array(
 			'group'=>'YmdG', // Grouping expression to use with date() function
 			'offset'=>0, // Offset in seconds
 			'count'=>12, // Count of backups preserved
+			'dir'=>dirname(__FILE__).'/backups/hourly', // Directory of the backup
 		),
-		dirname(__FILE__).'/backups/daily'=>array(
+		array(
 			'group'=>'Ymd',
 			'offset'=>0,
 			'count'=>14,
+			'dir'=>dirname(__FILE__).'/backups/daily',
 		),
-		dirname(__FILE__).'/backups/weekly'=>array(
+		array(
 			'group'=>'YW',
 			'offset'=>0,
 			'count'=>10,
+			'dir'=>dirname(__FILE__).'/backups/weekly',
 		),
-		dirname(__FILE__).'/backups/monthly'=>array(
+		array(
 			'group'=>'Ym',
 			'offset'=>0,
 			'count'=>12,
+			'dir'=>dirname(__FILE__).'/backups/monthly',
 		),
-		dirname(__FILE__).'/backups/yearly'=>array(
+		array(
 			'group'=>'Y',
 			'offset'=>0,
 			'count'=>2,
+			'dir'=>dirname(__FILE__).'/backups/yearly',
 		),
 	),
 	'pickupDir'=> dirname(__FILE__).'/backups/pickup',

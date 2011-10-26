@@ -12,34 +12,49 @@ class BackupDir
 	/** 
 	 * Path to that backupdir 
 	 */
-	private $path;
+	private $config;
 	
 	/** 
 	 * List of backups inside that directory 
 	 */
 	private $backups;
 
-	function __construct($path)
+	/** 
+	 * Builds from the config 
+	 * 
+	 * @param array $config Config from $config['backups']
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	function __construct($config)
 	{
-		$this->path=$path;
+		$this->config=$config;
 	}
 
-	public function getList()
+	/** 
+	 * Returns backup list 
+	 * 
+	 * @return array
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getBackups()
 	{
 		if(is_null($this->backups))
 		{
 			$this->backups=array();
-			$dir = new DirectoryIterator($this->path);
+			$path=$this->config['dir'];
+			$dir = new DirectoryIterator($path);
 			foreach ($dir as $fileinfo) {
 				if (!$fileinfo->isDot()) {
 					$name=$fileinfo->getFilename();
 					$date=DateTime::createFromFormat(DateTime::ISO8601,$name);
-					$this->backups[]=new Backup(
+					$backup=new Backup(
 						$date,
-						$this->path.'/'.$name
+						$path.'/'.$name
 					);
+					$this->backups[$backup->getCreation()->getTimestamp()]=$backup;
 				}
 			}
+			ksort($this->backups);
 		}
 		return $this->backups;
 	}

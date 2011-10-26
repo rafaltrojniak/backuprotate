@@ -11,6 +11,7 @@ $commands=array(
 	// Array(Short,Long,Description)
 	array('h','help','Help info'),
 	array('l','list','List backups'),
+	array('p','pickup','List pickups'),
 	array('b:','backups:','Backup group (default to pickup)','group'),
 );
 
@@ -33,6 +34,8 @@ spl_autoload_register(function($name){
 	require_once($file);
 });
 
+$store=new BackupStore($config);
+
 /* Parsing command-line options */
 $options=getopt( $shortOpt,$longOpt);
 foreach($options as $option=>$val){
@@ -43,7 +46,11 @@ foreach($options as $option=>$val){
 		break;
 	case 'list':
 	case 'l':
-		$commandQueue[]=new Command\ListBackup($backup);
+		$commandQueue[]=new Command\ListBackup();
+		break;
+	case 'pickup':
+	case 'p':
+		$commandQueue[]=new Command\ListPickup();
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
@@ -72,7 +79,11 @@ foreach($options as $option=>$val){
 	}
 }
 
+if(!count($commandQueue)){
+	echo "Command queue is empty\n";
+}
+
 foreach($commandQueue as $com)
 {
-	$com->run($config);
+	$com->run($store);
 }

@@ -9,5 +9,5 @@
 interface Command
 {
 	
-	function run($config);
+	function run(\BackupStore $store);
 }
