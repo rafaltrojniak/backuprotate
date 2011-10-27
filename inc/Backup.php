@@ -31,4 +31,15 @@ class Backup
 	{
 		return $this->creation;
 	}
+
+	/** 
+	 * Returns path to the backup 
+	 * 
+	 * @return string
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getPath()
+	{
+		return $this->path;
+	}
 }

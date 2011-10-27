@@ -1,7 +1,8 @@
 <?php
 return array(
 	'backups'=>array(
-		array(
+		// 'NameOfBackup'=>array(Config)
+		'hourly'=>array(
 			'rotate'=>'grouped', // Rotating algorithm
 			'rotate_opts'=>array(
 				'group'=>'YmdH', // Grouping expression to use with date() function
@@ -10,7 +11,7 @@ return array(
 			),
 			'dir'=>dirname(__FILE__).'/backups/hourly', // Directory of the backup
 		),
-		array(
+		'daily'=>array(
 			'rotate'=>'grouped',
 			'rotate_opts'=>array(
 				'group'=>'Ymd',
@@ -18,7 +19,7 @@ return array(
 			),
 			'dir'=>dirname(__FILE__).'/backups/daily',
 		),
-		array(
+		'weekly'=>array(
 			'rotate'=>'grouped',
 			'rotate_opts'=>array(
 				'group'=>'YW',
@@ -26,7 +27,7 @@ return array(
 			),
 			'dir'=>dirname(__FILE__).'/backups/weekly',
 		),
-		array(
+		'monthly'=>array(
 			'rotate'=>'grouped',
 			'rotate_opts'=>array(
 				'group'=>'Ym',
@@ -34,7 +35,7 @@ return array(
 			),
 			'dir'=>dirname(__FILE__).'/backups/monthly',
 		),
-		array(
+		'yearly'=>array(
 			'rotate'=>'grouped',
 			'rotate_opts'=>array(
 				'group'=>'Y',

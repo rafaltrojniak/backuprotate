@@ -25,6 +25,11 @@ class BackupDir
 	private $algo;
 
 	/** 
+	 * Cloner object for the queue 
+	 */
+	private $cloner;
+
+	/** 
 	 * Builds from the config 
 	 * 
 	 * @param array $config Config from $config['backups']
@@ -56,7 +61,7 @@ class BackupDir
 						$date,
 						$path.'/'.$name
 					);
-					$this->backups[$backup->getCreation()->getTimestamp()]=$backup;
+					$this->addBackup($backup);
 				}
 			}
 			ksort($this->backups);
@@ -76,8 +81,14 @@ class BackupDir
 		$algo = $this->getRotateAlgo();
 
 		$toPickup=$algo->pickup($this, $pickup);
-		// TODO Pickup the files
-		//throw new \Exception('TODO');
+		$cloner=$this->getCloner();
+		foreach($toPickup as $backup)
+		{
+			$newPath=$this->getBackupPathFromTime($backup->getCreation());
+			$cloner->cloneBackup($backup, $newPath );
+			$newBackup=new Backup( $backup->getCreation(), $newPath);
+			$this->addBackup($newBackup);
+		}
 		return $toPickup;
 	}
 
@@ -94,6 +105,38 @@ class BackupDir
 			$this->algo = new RotateAlgo\Grouped($this->config['rotate_opts']);
 		}
 		return $this->algo;
+	}
+
+	/** 
+	 * Returns cloner 
+	 * 
+	 * @return Cloner Cloner configured for that backupdir
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getCloner()
+	{
+		if(is_null($this->cloner)){
+			//TODO Add auto-generation
+			$this->cloner=new Cloner\Copier;
+		}
+		return $this->cloner;
+	}
+
+	/** 
+	 * Adds backup to the list 
+	 * 
+	 * @param Backup $backup 
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function addBackup(Backup $backup)
+	{
+		// TODO Additional checks if needed
+		$this->backups[$backup->getCreation()->getTimestamp()]=$backup;
+	}
+
+	private function getBackupPathFromTime(DateTime $date)
+	{
+		return $this->config['dir'].'/'. $date-> format(DateTime::ISO8601);
 	}
 
 }
