@@ -13,6 +13,7 @@ $commands=array(
 	array('l','list','List backups'),
 	array('p','pickup','List pickups'),
 	array('b:','backups:','Backup group (default to pickup)','group'),
+	array('r','rotate','Rotate backups'),
 );
 
 $shortOpt=null;
@@ -51,6 +52,10 @@ foreach($options as $option=>$val){
 	case 'pickup':
 	case 'p':
 		$commandQueue[]=new Command\ListPickup();
+		break;
+	case 'rotate':
+	case 'r':
+		$commandQueue[]=new Command\Rotate();
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");

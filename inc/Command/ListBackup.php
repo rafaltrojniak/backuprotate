@@ -18,7 +18,7 @@ class ListBackup implements \Command
 		foreach($dirs as $id=>$dir){
 			echo "[$id]:\n";
 			foreach($dir->getBackups() as $backup){
-				echo "\t".$backup->getCreated()->format(DateTime::ISO8601)."\n";
+				echo "\t".$backup->getCreation()->format(\DateTime::ISO8601)."\n";
 
 			}
 		}

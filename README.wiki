@@ -31,6 +31,8 @@ Directories from the pickup dir will be linked to the storing dirs according to 
 * Generating and keeping checksums 
 * Checking checksums
 
+* TimeZone fixes (all calculations in the same TZ)
+
 * Signing / checking signatures on checksums file ( GPG - signatures)
 
 * Running backup checks after pickup

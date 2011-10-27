@@ -20,6 +20,11 @@ class BackupDir
 	private $backups;
 
 	/** 
+	 * Algorithm used for rotation 
+	 */
+	private $algo;
+
+	/** 
 	 * Builds from the config 
 	 * 
 	 * @param array $config Config from $config['backups']
@@ -57,6 +62,38 @@ class BackupDir
 			ksort($this->backups);
 		}
 		return $this->backups;
+	}
+
+	/** 
+	 * Picks up new backups from supplied pickup dir 
+	 * 
+	 * @param BackupDir $pickup 
+	 * @return array list of picked backups
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function pickup(BackupDir $pickup)
+	{
+		$algo = $this->getRotateAlgo();
+
+		$toPickup=$algo->pickup($this, $pickup);
+		// TODO Pickup the files
+		//throw new \Exception('TODO');
+		return $toPickup;
+	}
+
+	/** 
+	 * Gets pickup algorithm for the rotation 
+	 * 
+	 * @return RotateAlgo
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getRotateAlgo()
+	{
+		if(is_null($this->algo)){
+			//TODO Add auto-generation
+			$this->algo = new RotateAlgo\Grouped($this->config['rotate_opts']);
+		}
+		return $this->algo;
 	}
 
 }
