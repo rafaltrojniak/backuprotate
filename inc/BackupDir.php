@@ -22,7 +22,12 @@ class BackupDir
 	/** 
 	 * Algorithm used for rotation 
 	 */
-	private $algo;
+	private $rotateAlgo;
+
+	/** 
+	 * Algorithm used for cleanning backups over limits
+	 */
+	private $cleanerAlgo;
 
 	/** 
 	 * Cloner object for the queue 
@@ -78,9 +83,10 @@ class BackupDir
 	 */
 	public function pickup(BackupDir $pickup)
 	{
-		$algo = $this->getRotateAlgo();
+		// TODO Find out duplicated backups and clean them
+		$rotateAlgo= $this->getRotateAlgo();
 
-		$toPickup=$algo->pickup($this, $pickup);
+		$toPickup=$rotateAlgo->pickup($this, $pickup);
 		$cloner=$this->getCloner();
 		foreach($toPickup as $backup)
 		{
@@ -100,11 +106,11 @@ class BackupDir
 	 */
 	public function getRotateAlgo()
 	{
-		if(is_null($this->algo)){
+		if(is_null($this->rotateAlgo)){
 			//TODO Add auto-generation
-			$this->algo = new RotateAlgo\Grouped($this->config['rotate_opts']);
+			$this->rotateAlgo= new RotateAlgo\Grouped($this->config['rotate_opts']);
 		}
-		return $this->algo;
+		return $this->rotateAlgo;
 	}
 
 	/** 
@@ -139,4 +145,42 @@ class BackupDir
 		return $this->config['dir'].'/'. $date-> format(DateTime::ISO8601);
 	}
 
+	/** 
+	 * Returns Cleaner algorithm for that backupdir 
+	 * 
+	 * @return 
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getCleanerAlgo()
+	{
+		if(is_null($this->cleanerAlgo)){
+			//TODO Add auto-generation
+			$this->cleanerAlgo=new CleanerAlgo\Count($this->config['clean_opts']);
+		}
+		return $this->cleanerAlgo;
+	}
+
+	/** 
+	 * Cleans backups calculated by clean algorithm 
+	 * 
+	 * @return Array List of Cleaned backups
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function clean()
+	{
+		$cleaner = $this->getCleanerAlgo();
+		$toClean = $cleaner->clean($this);
+		foreach($toClean as $backup){
+			$path=$backup->getPath();
+			// TODO Implement as native
+			exec("rm -rf ".escapeshellarg($path), $output, $ret);
+			if($ret){
+				throw new \RuntimeException(
+					'Failed to remove '.$path.' with return status ['.$ret.'] and output :\n'.
+					implode($output)
+				);
+			}
+		}
+		return $toClean;
+	}
 }

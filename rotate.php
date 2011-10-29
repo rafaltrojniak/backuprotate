@@ -14,6 +14,7 @@ $commands=array(
 	array('p','pickup','List pickups'),
 	array('b:','backups:','Backup group (default to pickup)','group'),
 	array('r','rotate','Rotate backups'),
+	array('c','clean','Clean backups'),
 );
 
 $shortOpt=null;
@@ -52,6 +53,10 @@ foreach($options as $option=>$val){
 	case 'pickup':
 	case 'p':
 		$commandQueue[]=new Command\ListPickup();
+		break;
+	case 'clean':
+	case 'c':
+		$commandQueue[]=new Command\Clean();
 		break;
 	case 'rotate':
 	case 'r':

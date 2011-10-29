@@ -8,16 +8,21 @@ namespace RotateAlgo;
 class Grouped implements \RotateAlgo
 {
 
+	/** 
+	 * Groupping token 
+	 */
 	private $group;
+	
+	/** 
+	 * Offset of the timestamp used in creating token 
+	 */
 	private $offset;
-	private $count;
 
 	public function __construct($config)
 	{
 		extract($config);
 		$this->group=$group;
 		//TODO Check and implement
-		$this->count=$count;
 		if(array_key_exists('offset',$config)) {
 			$this->offset=new \DateInterval($offset);
 		}
