@@ -26,6 +26,6 @@ class Fill implements \Command
 		}
 		$fileInfo= new \SplFileInfo($this->path);
 		$backup = \Backup::create($fileInfo);
-		$backup->fill();
+		return !$backup->fill();
 	}
 }

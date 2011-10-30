@@ -107,6 +107,7 @@ class Backup
 	 * Filles checksums of the files in the backups 
 	 * 
 	 * @author : Rafał Trójniak rafal@trojniak.net
+	 * @return  Boolean True if successed
 	 */
 	public function fill()
 	{
@@ -125,7 +126,7 @@ class Backup
 			}
 		}
 		$sumfile=implode("\n",$sums);
-		file_put_contents($this->path.'/'.self::SUMFILE, $sumfile);
+		return file_put_contents($this->path.'/'.self::SUMFILE, $sumfile)!==false;
 	}
 
 	/** 
