@@ -119,7 +119,7 @@ class Backup
 				if(in_array($name, self::$ignoreFiles)){
 					continue;
 				}
-				$path=$fileinfo->getRealPath();
+				$path=$fileinfo->getPathName();
 				$size=filesize($path);
 				$sum=sha1_file($path);
 				$sums[]=$sum.' '.$size.' '.$name;
@@ -138,11 +138,15 @@ class Backup
 	 */
 	static public function create(\SplFileInfo $fileinfo)
 	{
+		if(!$fileinfo->isDir()){
+			throw new \RuntimeException('Supplied argument "'.addslashes($fileinfo->getPathName()).'"'.
+				' is not a directory');
+		}
 		$name=$fileinfo->getFilename();
 		$date=\DateTime::createFromFormat(\DateTime::ISO8601,$name);
 		return new Backup(
 			$date,
-			$fileinfo->getRealPath()
+			$fileinfo->getPathName()
 		);
 	}
 }
