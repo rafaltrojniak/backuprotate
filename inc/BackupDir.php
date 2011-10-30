@@ -183,4 +183,16 @@ class BackupDir
 		}
 		return $toClean;
 	}
+
+	/** 
+	 * Forgets about the backup 
+	 * This deletes it from the list, but not from the disk
+	 * 
+	 * @param Backup $backup 
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function forgetBackup(Backup $backup)
+	{
+		unset($this->backups[$backup->getCreation()->getTimestamp()]);
+	}
 }

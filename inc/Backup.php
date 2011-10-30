@@ -5,8 +5,20 @@
 class Backup
 {
 
+	/** 
+	 * Path of the backup 
+	 */
 	private $path;
+	
+	/** 
+	 * Creation date of the backup 
+	 */
 	private $creation;
+
+	/** 
+	 * Name of the checksum file 
+	 */
+	const SUMFILE = "checksums";
 	
 	/** 
 	 * Create backup 
@@ -41,5 +53,76 @@ class Backup
 	public function getPath()
 	{
 		return $this->path;
+	}
+
+	/** 
+	 * Werifies checksums of the files in the backup 
+	 * 
+	 * @return Boolean true if everything is OK
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function werify()
+	{
+		$sumFilePath=$this->path.'/'.self::SUMFILE;
+		if(!is_readable($sumFilePath)){
+			echo 'Canot find sumfile for "'.addslashes($sumFilePath)."\"\n";
+			return false;
+		}
+		$sums=file($sumFilePath);
+		foreach($sums as $sumLine)
+		{
+			$tokens= explode(" ",trim($sumLine,"\n"));
+			$hash=array_shift($tokens);
+			$size=array_shift($tokens);
+			$name=implode($tokens);
+			$filePath=$this->path.'/'.$name;
+			if(!is_readable($filePath)){
+				//TODO Better error printing
+				echo 'Canot read file "'.addslashes($filePath)."\"\n";
+				return false;
+			}
+			if($size!=filesize($filePath)){
+				//TODO Better error printing
+				echo 'File size does not match for "'.addslashes($filePath)."\"\n";
+				return false;
+			}
+			if($hash!=sha1_file($filePath)){
+				//TODO Better error printing
+				echo 'SHA1 sum does not match for "'.addslashes($filePath)."\"\n";
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** 
+	 * Filles checksums of the files in the backups 
+	 * 
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function fill()
+	{
+		// TODO Refactor
+		throw new \Exception('TODO');
+		if(!is_dir($this->path)){
+			throw new \RuntimeException('Supplied argument "'.addslashes($this->path).'"'.
+				' is not a directory');
+		}
+		$dir = new \DirectoryIterator($this->path);
+		$sums=array();
+		foreach ($dir as $fileinfo) {
+			if (!$fileinfo->isDot()) {
+				$name=$fileinfo->getFilename();
+				if(in_array($name, self::$ignore)){
+					continue;
+				}
+				$path=$fileinfo->getRealPath();
+				$size=filesize($path);
+				$sum=sha1_file($path);
+				$sums[]=$sum.' '.$size.' '.$name;
+			}
+		}
+		$sumfile=implode("\n",$sums);
+		file_put_contents($this->path.'/'.$this->sumName, $sumfile);
 	}
 }

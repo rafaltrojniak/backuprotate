@@ -32,6 +32,7 @@ class Fill implements \Command
 	
 	function run(\BackupStore $store)
 	{
+		// TODO Rebuild to use Backup:fill
 		if(!is_dir($this->path)){
 			throw new \RuntimeException('Supplied argument "'.addslashes($this->path).'"'.
 				' is not a directory');
