@@ -15,6 +15,7 @@ $commands=array(
 	array('b:','backups:','Backup group (default to pickup)','group'),
 	array('r','rotate','Rotate backups'),
 	array('c','clean','Clean backups'),
+	array('f:','fill:','Fill checksums files in pickup'),
 );
 
 $shortOpt=null;
@@ -61,6 +62,10 @@ foreach($options as $option=>$val){
 	case 'rotate':
 	case 'r':
 		$commandQueue[]=new Command\Rotate();
+		break;
+	case 'fill':
+	case 'f':
+		$commandQueue[]=new Command\Fill($val);
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
