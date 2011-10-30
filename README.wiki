@@ -18,20 +18,39 @@ Directories from the pickup dir will be linked to the storing dirs according to 
 
 === Storing dir configuration ===
 
-* group - string consisting of fields that will be used to build ordering token. Each symbol is translated to corresponding time part as in date() function.
-* offset - offset of the directory - time to add to each backup in seconds
-* count - count of backups kept in that directory
+* rotate - rotation algorithm
+* rotate_opts - rotation algorithm configuration options ( depending on the algorithm )
+* clean - cleanning algorighm
+* clean_opts - cleanning algorithm configuration (depending on the algorithm)
+
+==== Rotating algorithm ====
+
+===== grouped =====
+This algorithm groups backups by token baed on creation time. This token is configured by `group` option. For every group the oldest backup is picked.
+
+If there is backup in pickup dir older than actual backup, it is also picket.
+
+Value of group configuration is used as param to [[http://php.net/manual/en/function.date.php| date()] function.
+
+Examples :
+- 'Y' yearly
+- 'Ym' monthly
+- 'YW' Weekly
+- 'Ymd' daily
+- 'YmdH' Hourly
+
+==== Cleanning algorithm ====
+
+===== count =====
+
+Throws out all the bakckups over the `count` value.
+It throws oldest backupps.
+
+_IMPORTANT_ If you have duplicates in group rotating (many backups in the same group) it can rotate oldest backups and throw them out.
 
 = TODO =
-* Rotating Backups
-* Removing backups over count
 
 == Wish list==
-
-* Generating and keeping checksums 
-* Checking checksums
-
-* TimeZone fixes (all calculations in the same TZ)
 
 * Signing / checking signatures on checksums file ( GPG - signatures)
 
