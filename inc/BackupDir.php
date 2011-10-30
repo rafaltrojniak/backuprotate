@@ -60,12 +60,7 @@ class BackupDir
 			$dir = new DirectoryIterator($path);
 			foreach ($dir as $fileinfo) {
 				if (!$fileinfo->isDot()) {
-					$name=$fileinfo->getFilename();
-					$date=DateTime::createFromFormat(DateTime::ISO8601,$name);
-					$backup=new Backup(
-						$date,
-						$path.'/'.$name
-					);
+					$backup = Backup::create($fileinfo);
 					$this->addBackup($backup);
 				}
 			}

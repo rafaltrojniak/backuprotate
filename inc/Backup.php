@@ -19,6 +19,14 @@ class Backup
 	 * Name of the checksum file 
 	 */
 	const SUMFILE = "checksums";
+
+	/** 
+	 * Array of names to ignore during generation 
+	 */
+	static private $ignoreFiles=array(
+		"checksums",
+	);
+
 	
 	/** 
 	 * Create backup 
@@ -102,18 +110,12 @@ class Backup
 	 */
 	public function fill()
 	{
-		// TODO Refactor
-		throw new \Exception('TODO');
-		if(!is_dir($this->path)){
-			throw new \RuntimeException('Supplied argument "'.addslashes($this->path).'"'.
-				' is not a directory');
-		}
 		$dir = new \DirectoryIterator($this->path);
 		$sums=array();
 		foreach ($dir as $fileinfo) {
 			if (!$fileinfo->isDot()) {
 				$name=$fileinfo->getFilename();
-				if(in_array($name, self::$ignore)){
+				if(in_array($name, self::$ignoreFiles)){
 					continue;
 				}
 				$path=$fileinfo->getRealPath();
@@ -123,6 +125,23 @@ class Backup
 			}
 		}
 		$sumfile=implode("\n",$sums);
-		file_put_contents($this->path.'/'.$this->sumName, $sumfile);
+		file_put_contents($this->path.'/'.self::SUMFILE, $sumfile);
+	}
+
+	/** 
+	 * Creates backup from full path 
+	 * 
+	 * @param $fillPath 
+	 * @return Backup
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	static public function create(\SplFileInfo $fileinfo)
+	{
+		$name=$fileinfo->getFilename();
+		$date=\DateTime::createFromFormat(\DateTime::ISO8601,$name);
+		return new Backup(
+			$date,
+			$fileinfo->getRealPath()
+		);
 	}
 }

@@ -13,18 +13,6 @@ class Fill implements \Command
 	 */
 	private $path;
 
-	/** 
-	 * Name of file containing checksums 
-	 */
-	private $sumName="checksums";
-
-	/** 
-	 * Array of names to ignore during generation 
-	 */
-	static private $ignore=array(
-		"checksums",
-	);
-
 	public function __construct($path)
 	{
 		$this->path=$path;
@@ -32,26 +20,12 @@ class Fill implements \Command
 	
 	function run(\BackupStore $store)
 	{
-		// TODO Rebuild to use Backup:fill
 		if(!is_dir($this->path)){
 			throw new \RuntimeException('Supplied argument "'.addslashes($this->path).'"'.
 				' is not a directory');
 		}
-		$dir = new \DirectoryIterator($this->path);
-		$sums=array();
-		foreach ($dir as $fileinfo) {
-			if (!$fileinfo->isDot()) {
-				$name=$fileinfo->getFilename();
-				if(in_array($name, self::$ignore)){
-					continue;
-				}
-				$path=$fileinfo->getRealPath();
-				$size=filesize($path);
-				$sum=sha1_file($path);
-				$sums[]=$sum.' '.$size.' '.$name;
-			}
-		}
-		$sumfile=implode("\n",$sums);
-		file_put_contents($this->path.'/'.$this->sumName, $sumfile);
+		$fileInfo= new \SplFileInfo($this->path);
+		$backup = \Backup::create($fileInfo);
+		$backup->fill();
 	}
 }
