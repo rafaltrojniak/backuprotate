@@ -6,14 +6,14 @@ This project aims to solve simple problem : backup rotating.
 Simple using scenario :
 
 == On local host ==
-- For new backup you create directory in pickup dir
-- New backup is being made in that directory. Multiple files are allowed
-- Checksums are filled ( option -f )
-- Backup i locally rotated to backup dirs
+* For new backup you create directory in pickup dir
+* New backup is being made in that directory. Multiple files are allowed
+* Checksums are filled ( option -f )
+* Backup i locally rotated to backup dirs
 == On remote host ==
-- Backups are transferred to remote host pickup dir (use rsync, scp or other)
-- Checksums are calculated, only verified backups are being processed option -w)
-- Backups are rotated on remote host
+* Backups are transferred to remote host pickup dir (use rsync, scp or other)
+* Checksums are calculated, only verified backups are being processed option -w)
+* Backups are rotated on remote host
 
 == Pickup dir ==
 
@@ -39,11 +39,11 @@ Directories from the pickup dir will be linked to the storing dirs according to 
 This algorithm groups backups by token based on creation time. This token is configured by `group` option. For every group the oldest backup is picked.  If there is backup in pickup dir older than actual backup, it is also picked. Value of group configuration is used as param to [[http://php.net/manual/en/function.date.php| date()] function.
 
 Examples :
-- 'Y' yearly
-- 'Ym' monthly
-- 'YW' Weekly
-- 'Ymd' daily
-- 'YmdH' Hourly
+* 'Y' yearly
+* 'Ym' monthly
+* 'YW' Weekly
+* 'Ymd' daily
+* 'YmdH' Hourly
 
 ==== Cleaning algorithm ====
 ===== count =====
