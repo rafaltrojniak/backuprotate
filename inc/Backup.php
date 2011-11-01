@@ -66,15 +66,14 @@ class Backup
 	/** 
 	 * Werifies checksums of the files in the backup 
 	 * 
-	 * @return Boolean true if everything is OK
+	 * @return Boolean|string true if everything is OK, String containing message if not
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	public function werify()
 	{
 		$sumFilePath=$this->path.'/'.self::SUMFILE;
 		if(!is_readable($sumFilePath)){
-			echo 'Canot find sumfile for "'.addslashes($sumFilePath)."\"\n";
-			return false;
+			return 'Canot find sumfile for "'.addslashes($sumFilePath).'"';
 		}
 		$sums=file($sumFilePath);
 		foreach($sums as $sumLine)
@@ -85,19 +84,16 @@ class Backup
 			$name=implode($tokens);
 			$filePath=$this->path.'/'.$name;
 			if(!is_readable($filePath)){
-				//TODO Better error printing
-				echo 'Canot read file "'.addslashes($filePath)."\"\n";
-				return false;
+				return 'Canot read file "'.
+					addslashes($filePath).'"';
 			}
 			if($size!=filesize($filePath)){
-				//TODO Better error printing
-				echo 'File size does not match for "'.addslashes($filePath)."\"\n";
-				return false;
+				return 'File size does not match for "'.
+					addslashes($filePath).'"';
 			}
 			if($hash!=sha1_file($filePath)){
-				//TODO Better error printing
-				echo 'SHA1 sum does not match for "'.addslashes($filePath)."\"\n";
-				return false;
+				return 'SHA1 sum does not match for "'.
+					addslashes($filePath).'"';
 			}
 		}
 		return true;

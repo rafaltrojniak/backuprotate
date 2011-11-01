@@ -10,6 +10,7 @@ class Clean implements \Command
 	
 	function run(\BackupStore $store)
 	{
+		echo "== Clean\n";
 		$dirs=$store->getDirs();
 		foreach($dirs as $id=>$dir){
 			echo "[$id]:\n";

@@ -43,6 +43,9 @@ $store=new BackupStore($config);
 /* Parsing command-line options */
 $options=getopt( $shortOpt,$longOpt);
 foreach($options as $option=>$val){
+	if(is_array($val)){
+		$val=array_pop($val);
+	}
 	switch($option){
 	case 'b':
 	case 'backup':

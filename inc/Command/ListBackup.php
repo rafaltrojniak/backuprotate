@@ -14,6 +14,7 @@ class ListBackup implements \Command
 
 	function run(\BackupStore $store)
 	{
+		echo "== List backups\n";
 		$dirs=$store->getDirs();
 		foreach($dirs as $id=>$dir){
 			echo "[$id]:\n";

@@ -10,6 +10,7 @@ class Rotate implements \Command
 	
 	function run(\BackupStore $store)
 	{
+		echo "== List rotating\n";
 		$dirs=$store->getDirs();
 		$pickup=$store->getPickup();
 		foreach($dirs as $id=>$dir){

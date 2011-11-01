@@ -17,6 +17,7 @@ class ListPickup implements \Command
 	 */
 	function run(\BackupStore $store)
 	{
+		echo "== List pickups\n";
 		$pickup=$store->getPickup();
 		foreach($pickup->getBackups() as $backup){
 			echo $backup->getCreation()->format('Y-m-d H:i T')."\n";

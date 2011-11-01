@@ -20,6 +20,7 @@ class Fill implements \Command
 	
 	function run(\BackupStore $store)
 	{
+		echo "== Fill\n";
 		$fileInfo= new \SplFileInfo($this->path);
 		$backup = \Backup::create($fileInfo);
 		return !$backup->fill();
