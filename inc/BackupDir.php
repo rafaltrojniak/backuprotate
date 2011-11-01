@@ -78,7 +78,6 @@ class BackupDir
 	 */
 	public function pickup(BackupDir $pickup)
 	{
-		// TODO Find out duplicated backups and clean them
 		$rotateAlgo= $this->getRotateAlgo();
 
 		$toPickup=$rotateAlgo->pickup($this, $pickup);
@@ -102,8 +101,9 @@ class BackupDir
 	public function getRotateAlgo()
 	{
 		if(is_null($this->rotateAlgo)){
-			//TODO Add auto-generation
-			$this->rotateAlgo= new RotateAlgo\Grouped($this->config['rotate_opts']);
+			$class='RotateAlgo\\'.ucfirst($this->config['rotate']);
+			$opts=$this->config['rotate_opts'];
+			$this->rotateAlgo= new $class($opts);
 		}
 		return $this->rotateAlgo;
 	}
@@ -117,8 +117,13 @@ class BackupDir
 	public function getCloner()
 	{
 		if(is_null($this->cloner)){
-			//TODO Add auto-generation
-			$this->cloner=new Cloner\Copier;
+			// Default is copier
+			$class="Copier";
+			if(array_key_exists('copier',$this->config)){
+				$class=ucfirst($this->config['copier']);
+			}
+			$class='Cloner\\'.$class;
+			$this->cloner=new $class;
 		}
 		return $this->cloner;
 	}
@@ -131,7 +136,6 @@ class BackupDir
 	 */
 	private function addBackup(Backup $backup)
 	{
-		// TODO Additional checks if needed
 		$this->backups[$backup->getCreation()->getTimestamp()]=$backup;
 	}
 
@@ -149,8 +153,9 @@ class BackupDir
 	public function getCleanerAlgo()
 	{
 		if(is_null($this->cleanerAlgo)){
-			//TODO Add auto-generation
-			$this->cleanerAlgo=new CleanerAlgo\Count($this->config['clean_opts']);
+			$class='CleanerAlgo\\'.ucfirst($this->config['clean']);
+			$opts=$this->config['clean_opts'];
+			$this->cleanerAlgo=new $class($opts);
 		}
 		return $this->cleanerAlgo;
 	}
