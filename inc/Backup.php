@@ -149,4 +149,27 @@ class Backup
 			$fileinfo->getPathName()
 		);
 	}
+
+	/** 
+	 * Deletes backup 
+	 * 
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function delete()
+	{
+		$dir = new \DirectoryIterator($this->path);
+		foreach ($dir as $fileinfo) {
+			if($fileinfo->isDir()){
+				continue;
+			}
+			$path=$fileinfo->getPathName();
+			if(!unlink($path)){
+				throw new \RuntimeException( 'Failed to remove "'.$path.'"');
+			}
+		}
+		
+		if(!rmdir($this->path)){
+			throw new \RuntimeException( 'Failed to remove directory "'.$path.'"' );
+		}
+	}
 }

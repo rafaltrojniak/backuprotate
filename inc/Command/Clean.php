@@ -13,10 +13,14 @@ class Clean implements \Command
 		$dirs=$store->getDirs();
 		foreach($dirs as $id=>$dir){
 			echo "[$id]:\n";
-			$toClean=$dir->clean();
-			foreach($toClean as $backup){
-				echo "\t-\t".$backup->getCreation()->format(\DateTime::ISO8601)."\n";
+			try{
+				$toClean=$dir->clean();
+				foreach($toClean as $backup){
+					echo "\t-\t".$backup->getCreation()->format(\DateTime::ISO8601)."\n";
 
+				}
+			}catch(\RuntimeException $e){
+				echo 'Got exception:'.$e->getMessage()."\n";
 			}
 		}
 	}

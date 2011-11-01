@@ -171,15 +171,7 @@ class BackupDir
 		$cleaner = $this->getCleanerAlgo();
 		$toClean = $cleaner->clean($this);
 		foreach($toClean as $backup){
-			$path=$backup->getPath();
-			// TODO Implement as native
-			exec("rm -rf ".escapeshellarg($path), $output, $ret);
-			if($ret){
-				throw new \RuntimeException(
-					'Failed to remove '.$path.' with return status ['.$ret.'] and output :\n'.
-					implode($output)
-				);
-			}
+			$backup->delete();
 		}
 		return $toClean;
 	}
