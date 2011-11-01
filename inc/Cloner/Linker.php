@@ -1,16 +1,16 @@
 <?php
 namespace Cloner;
 /**
- * Copies files
+ * Makes Hard links for the files from pickup
  **/
-class Copier implements \Cloner
+class Linker implements \Cloner
 {
 	
 	public function cloneBackup(
 		\Backup $toClone,  $destDir)
 	{
 		//TODO Implement in native
-		exec("cp -r ".escapeshellarg($toClone->getPath())." ".
+		exec("cp -lr ".escapeshellarg($toClone->getPath())." ".
 			escapeshellarg($destDir), $output, $ret);
 		if($ret){
 			throw new \RuntimeException(
