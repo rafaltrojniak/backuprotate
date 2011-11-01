@@ -137,6 +137,7 @@ class BackupDir
 	private function addBackup(Backup $backup)
 	{
 		$this->backups[$backup->getCreation()->getTimestamp()]=$backup;
+		ksort($this->backups);
 	}
 
 	private function getBackupPathFromTime(DateTime $date)
@@ -186,5 +187,23 @@ class BackupDir
 	public function forgetBackup(Backup $backup)
 	{
 		unset($this->backups[$backup->getCreation()->getTimestamp()]);
+	}
+
+	/** 
+	 * Returns newest backup from the directory 
+	 * 
+	 * @return Backup|null
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getNewestBackup()
+	{
+		if(!count($this->backups))
+		{
+			return null;
+		}
+		$keys=array_keys($this->backups);
+		arsort($keys);
+		$first=array_shift($keys);
+		return $this->backups[$first];
 	}
 }

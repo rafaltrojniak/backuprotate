@@ -7,9 +7,10 @@ return array(
 			'rotate_opts'=>array(
 				'group'=>'YmdH', // Grouping expression to use with date() function
 			),
-			'clean'=>'count',
+			'clean'=>'age',
 			'clean_opts'=>array(
-				'count'=>12,
+				'age'=>"P1W", // For Age algorithm date interval in format http://pl.php.net/manual/en/dateinterval.construct.php
+				'count'=>7, // For Count algorithm the count of the backups keeped
 			),
 			'dir'=>dirname(__FILE__).'/backups/hourly', // Directory of the backup
 			'copier'=>'copier',
@@ -19,9 +20,9 @@ return array(
 			'rotate_opts'=>array(
 				'group'=>'Ymd',
 			),
-			'clean'=>'count',
+			'clean'=>'age',
 			'clean_opts'=>array(
-				'count'=>14,
+				'age'=>"P1M",
 			),
 			'dir'=>dirname(__FILE__).'/backups/daily',
 			'copier'=>'linker',
@@ -43,9 +44,9 @@ return array(
 			'rotate_opts'=>array(
 				'group'=>'Ym',
 			),
-			'clean'=>'count',
+			'clean'=>'age',
 			'clean_opts'=>array(
-				'count'=>12,
+				'age'=>"P1Y",
 			),
 			'dir'=>dirname(__FILE__).'/backups/monthly',
 			'copier'=>'linker',
