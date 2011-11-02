@@ -21,6 +21,11 @@ class Backup
 	const SUMFILE = "checksums";
 
 	/** 
+	 * Verification cache 
+	 */
+	private $verification;
+
+	/** 
 	 * Array of names to ignore during generation 
 	 */
 	static private $ignoreFiles=array(
@@ -66,11 +71,16 @@ class Backup
 	/** 
 	 * Werifies checksums of the files in the backup 
 	 * 
+	 * @param boolean $sizeOnly Flag if only size should be checked
 	 * @return Boolean|string true if everything is OK, String containing message if not
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	public function werify()
+	public function verify($sizeOnly=false)
 	{
+		if(!is_null($this->verification)){
+			return $this->verification;
+		}
+		$this->verification = false;
 		$sumFilePath=$this->path.'/'.self::SUMFILE;
 		if(!is_readable($sumFilePath)){
 			return 'Canot find sumfile for "'.addslashes($sumFilePath).'"';
@@ -91,11 +101,12 @@ class Backup
 				return 'File size does not match for "'.
 					addslashes($filePath).'"';
 			}
-			if($hash!=sha1_file($filePath)){
+			if(!$sizeOnly and $hash!=sha1_file($filePath)){
 				return 'SHA1 sum does not match for "'.
 					addslashes($filePath).'"';
 			}
 		}
+		$this->verification = true;
 		return true;
 	}
 

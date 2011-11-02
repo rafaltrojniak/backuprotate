@@ -12,11 +12,11 @@ $commands=array(
 	array('h','help','Help info'),
 	array('l','list','List backups'),
 	array('p','pickup','List pickups'),
-	array('b:','backups:','Backup group (default to pickup)','group'),
 	array('r','rotate','Rotate backups'),
 	array('c','clean','Clean backups'),
 	array('f:','fill:','Fill checksums files in pickup'),
-	array('w','werify','Werify pickup backups'),
+	array('v','verify','Verify pickup backups'),
+	array('s','size-only','Verify only based on size'),
 );
 
 $shortOpt=null;
@@ -30,7 +30,9 @@ foreach($commands as $com){
 }
 
 $commandQueue=array();
-$backup='pickup';
+$flags=array(
+	'sizeOnly'=>false,
+);
 
 spl_autoload_register();
 spl_autoload_register(function($name){
@@ -47,10 +49,6 @@ foreach($options as $option=>$val){
 		$val=array_pop($val);
 	}
 	switch($option){
-	case 'b':
-	case 'backup':
-		$backup=$val;
-		break;
 	case 'list':
 	case 'l':
 		$commandQueue[]=new Command\ListBackup();
@@ -71,9 +69,13 @@ foreach($options as $option=>$val){
 	case 'f':
 		$commandQueue[]=new Command\Fill($val);
 		break;
-	case 'werify':
-	case 'w':
-		$commandQueue[]=new Command\Werify();
+	case 'size-only':
+	case 's':
+		$flags['sizeOnly']=true;
+		break;
+	case 'verify':
+	case 'v':
+		$commandQueue[]=new Command\Verify($flags['sizeOnly']);
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
