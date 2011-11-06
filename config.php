@@ -64,5 +64,11 @@ return array(
 			'copier'=>'linker',
 		),
 	),
-	'pickupDir'=> dirname(__FILE__).'/backups/pickup',
+	'pickup'=>array(
+		'dir'=>dirname(__FILE__).'/backups/pickup',
+		'clean'=>'count',
+		'clean_opts'=>array(
+			'count'=>2,
+		),
+	)
 );

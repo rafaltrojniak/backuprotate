@@ -38,9 +38,9 @@ class BackupStore
 	 */
 	public function getDir($name)
 	{
-		$this->getDirs();
-		if(array_key_exists($name,$this->dirs)){
-			return $this->dirs[$name];
+		$dirs=$this->getDirs();
+		if(array_key_exists($name,$dirs)){
+			return $dirs[$name];
 		}
 		return null;
 	}
@@ -73,13 +73,7 @@ class BackupStore
 	public function getPickup()
 	{
 		if(is_null($this->pickup)){
-			$this->pickup=new BackupDir(
-			array(
-				'group'=>'%',
-				'offset'=>0,
-				'count'=>null,
-				'dir'=>$this->config['pickupDir']
-			));
+			$this->pickup=new BackupDir( $this->config['pickup'] );
 		}
 		return $this->pickup;
 	}
