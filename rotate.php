@@ -10,11 +10,11 @@ function getListFromDir($directory)
 $commands=array(
 	// Array(Short,Long,Description)
 	array('h','help','Help info'),
-	array('l','list','List backups'),
+	array('l::','list::','List backups for specific bucket, or fol all if not supplied','bucket'),
 	array('p','pickup','List pickups'),
 	array('r','rotate','Rotate backups'),
 	array('c','clean','Clean backups'),
-	array('f:','fill:','Fill checksums files in pickup'),
+	array('f:','fill:','Fill checksums files in pickup','directory'),
 	array('v','verify','Verify pickup backups'),
 	array('s','size-only','Verify only based on size'),
 );
@@ -51,7 +51,7 @@ foreach($options as $option=>$val){
 	switch($option){
 	case 'list':
 	case 'l':
-		$commandQueue[]=new Command\ListBackup();
+		$commandQueue[]=new Command\ListBackup($val);
 		break;
 	case 'pickup':
 	case 'p':
@@ -87,7 +87,12 @@ foreach($options as $option=>$val){
 			$options=array();
 			$param=null;
 			if(count($com)>=4){
-				$param='='.$com[3];
+				$param=$com[3];
+				if(strpos($short,'::')!==false)
+				{
+					$param="[$param]";
+				}
+				$param='='.$param;
 				$short=trim($short,':');
 				$long=trim($long,':');
 			}
