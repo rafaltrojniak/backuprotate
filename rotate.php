@@ -17,6 +17,7 @@ $commands=array(
 	array('f:','fill:','Fill checksums files in pickup','directory'),
 	array('v','verify','Verify pickup backups'),
 	array('s','size-only','Verify only based on size'),
+	array('d','del-pickup','Clean picup directory as configured'),
 );
 
 $shortOpt=null;
@@ -68,6 +69,10 @@ foreach($options as $option=>$val){
 	case 'fill':
 	case 'f':
 		$commandQueue[]=new Command\Fill($val);
+		break;
+	case 'del-pickup':
+	case 'd':
+		$commandQueue[]=new Command\DelPickup();
 		break;
 	case 'size-only':
 	case 's':
