@@ -197,7 +197,7 @@ class BackupDir
 	 */
 	public function getNewestBackup()
 	{
-		if(!count($this->backups))
+		if(!count($this->getBackups()))
 		{
 			return null;
 		}
