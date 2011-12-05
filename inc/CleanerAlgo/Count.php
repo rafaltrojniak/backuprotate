@@ -34,7 +34,7 @@ class Count implements \CleanerAlgo
 		$backups=$backupDir->getBackups();
 		$i=$this->count;
 		while($i and count($backups)){
-			array_shift($backups);
+			array_pop($backups);
 			$i--;
 		}
 		return $backups;
