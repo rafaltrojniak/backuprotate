@@ -71,7 +71,9 @@ class Grouped implements \RotateAlgo
 			if(is_null($toCompare) or
 				$backup->getCreation()->getTimestamp()<
 				$toCompare->getCreation()->getTimestamp()){
-				$pickup[$token]=$backup;
+				if($backup->verify(true)===true){
+					$pickup[$token]=$backup;
+				}
 			}
 		}
 

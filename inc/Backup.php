@@ -106,7 +106,11 @@ class Backup
 					addslashes($filePath).'"';
 			}
 		}
-		$this->verification = true;
+
+		// Caching only checksums
+		if(!sizeOnly){
+			$this->verification = true;
+		}
 		return true;
 	}
 
