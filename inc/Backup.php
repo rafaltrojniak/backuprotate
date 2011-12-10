@@ -155,6 +155,12 @@ class Backup
 		}
 		$name=$fileinfo->getFilename();
 		$date=\DateTime::createFromFormat(\DateTime::ISO8601,$name);
+		if(! $date instanceof  \DateTime){
+			throw new \RuntimeException('Cannot parse date from file '.
+				$fileinfo->getPathName()
+				.' with format '.\DateTime::ISO8601.' and input '.$name);
+               }
+
 		return new Backup(
 			$date,
 			$fileinfo->getPathName()
