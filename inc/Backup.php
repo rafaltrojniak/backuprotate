@@ -108,7 +108,7 @@ class Backup
 		}
 
 		// Caching only checksums
-		if(!sizeOnly){
+		if(!$sizeOnly){
 			$this->verification = true;
 		}
 		return true;
