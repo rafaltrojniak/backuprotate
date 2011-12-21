@@ -35,6 +35,7 @@ $commands=array(
 	array('v','verify','Verify pickup backups'),
 	array('s','size-only','Verify only based on size'),
 	array('d','del-pickup','Clean picup directory as configured'),
+	array('b','build','Build backup bucket directories'),
 );
 
 $shortOpt=null;
@@ -101,6 +102,10 @@ foreach($options as $option=>$val){
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
+	case 'build':
+	case 'b':
+		$commandQueue[]=new Command\Build();
+		break;
 	case 'help':
 	case 'h':
 		fprintf(STDERR,"Options :\n");

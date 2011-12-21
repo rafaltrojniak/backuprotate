@@ -46,6 +46,17 @@ class BackupDir
 	}
 
 	/** 
+	 * Returns directory path 
+	 * 
+	 * @return string
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getPath()
+	{
+		return $this->config['dir'];
+	}
+
+	/** 
 	 * Returns backup list 
 	 * 
 	 * @return array
@@ -56,8 +67,7 @@ class BackupDir
 		if(is_null($this->backups))
 		{
 			$this->backups=array();
-			$path=$this->config['dir'];
-			$dir = new DirectoryIterator($path);
+			$dir = new DirectoryIterator( $this->getPath());
 			foreach ($dir as $fileinfo) {
 				if (!$fileinfo->isDot()) {
 					$backup = Backup::create($fileinfo);
@@ -142,7 +152,7 @@ class BackupDir
 
 	private function getBackupPathFromTime(DateTime $date)
 	{
-		return $this->config['dir'].'/'. $date-> format(DateTime::ISO8601);
+		return $this->getPath().'/'. $date-> format(DateTime::ISO8601);
 	}
 
 	/** 
