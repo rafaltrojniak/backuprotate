@@ -80,7 +80,12 @@ class Backup
 		if(!is_null($this->verification)){
 			return $this->verification;
 		}
-		$this->verification = false;
+
+		// Caching only checksums
+		if(!$sizeOnly){
+			$this->verification = false;
+		}
+
 		$sumFilePath=$this->path.'/'.self::SUMFILE;
 		if(!is_readable($sumFilePath)){
 			return 'Canot find sumfile for "'.addslashes($sumFilePath).'"';
