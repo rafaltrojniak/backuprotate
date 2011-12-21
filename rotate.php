@@ -1,4 +1,21 @@
 <?php
+
+# Version determination
+$gitdir=dirname(__FILE__).'/.git';
+$version='unknown';
+if(is_dir($gitdir)){
+	$version=exec('git --git-dir='.escapeshellarg($gitdir).' describe --tags', $output, $ret);
+	if($ret){
+		echo "Failed to detect version\n";
+		foreach($output as $line){
+			echo "git:".$line."\n";
+		}
+	}
+}
+# Printing baner
+echo "Backuprotate version $version pid ".posix_getpid().
+	" By Rafał Trójniak <backuprotate@trojniak.net> \n";
+
 $config=require('config.php');
 
 function getListFromDir($directory)
