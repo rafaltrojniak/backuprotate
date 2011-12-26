@@ -14,8 +14,8 @@ class Copier implements \Cloner
 			escapeshellarg($destDir), $output, $ret);
 		if($ret){
 			throw new \RuntimeException(
-				'Copying failed with return status ['.$ret.'] and output :\n'.
-				$output
+				"Copying failed with return status [".$ret."] and output :\n".
+				implode($output)
 			);
 		}
 	}
