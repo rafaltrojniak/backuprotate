@@ -28,8 +28,10 @@ class Backup
 	/** 
 	 * Array of names to ignore during generation 
 	 */
-	static private $ignoreFiles=array(
+	static private $ignoreFilenames=array(
 		"checksums",
+		".",
+		"..",
 	);
 
 	
@@ -65,7 +67,7 @@ class Backup
 	 */
 	public function getPath()
 	{
-		return $this->path;
+		return basename($this->path);
 	}
 
 	/** 
@@ -127,22 +129,51 @@ class Backup
 	 */
 	public function fill()
 	{
-		$dir = new \DirectoryIterator($this->path);
-		$sums=array();
-		foreach ($dir as $fileinfo) {
-			if (!$fileinfo->isDot()) {
-				$name=$fileinfo->getFilename();
-				if(in_array($name, self::$ignoreFiles)){
+		// Creating logfile
+		$sumfilePath=$this->path.'/'.self::SUMFILE;
+		$sumfile = new \SplFileObject($sumfilePath, "w");
+
+		$orgPathLen=strlen($this->path)+1;
+
+		$stack = new \SplStack();
+		$stack -> push ( $this->path );
+
+		while(!$stack->isEmpty()){
+
+			$iterator = new \DirectoryIterator( $stack -> pop());
+
+			foreach($iterator as $key){
+
+				// Skipping ignoreFilenames
+				$name=$key->getFilename();
+				if(in_array($name, self::$ignoreFilenames)){
 					continue;
 				}
-				$path=$fileinfo->getPathName();
-				$size=filesize($path);
-				$sum=sha1_file($path);
-				$sums[]=$sum.' '.$size.' '.$name;
+
+				if($key->isDir()){
+					// Push back files
+					$stack->push( $key->getPathName() );
+				}elseif($key->isFile()){
+
+					$path=$key->getPathName();
+					$relPath=(substr($path,$orgPathLen));
+
+					$size=$key->getSize();
+					$sum=sha1_file($path);
+					if($sum===false){
+						throw new \RuntimeException('Error while calculating sum of file '.$path);
+					}
+
+					if($sumfile->fwrite( $sum.' '.$size.' '.$relPath."\n")===false){
+						throw new \RuntimeException("Failed writing to sumfile :  $sumfilePath");
+					}
+
+				}
+
 			}
 		}
-		$sumfile=implode("\n",$sums);
-		return file_put_contents($this->path.'/'.self::SUMFILE, $sumfile)!==false;
+
+		return true;
 	}
 
 	/** 
