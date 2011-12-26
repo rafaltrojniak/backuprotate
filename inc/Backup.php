@@ -18,7 +18,7 @@ class Backup
 	/** 
 	 * Name of the checksum file 
 	 */
-	const SUMFILE = "checksums";
+	const SUMFILE = "checksums.csv";
 
 	/** 
 	 * Verification cache 
@@ -30,6 +30,7 @@ class Backup
 	 */
 	static private $ignoreFilenames=array(
 		"checksums",
+		"checksums.csv",
 		".",
 		"..",
 	);
@@ -131,7 +132,10 @@ class Backup
 	{
 		// Creating logfile
 		$sumfilePath=$this->path.'/'.self::SUMFILE;
-		$sumfile = new \SplFileObject($sumfilePath, "w");
+		$sumfile = fopen($sumfilePath, "w");
+		if($sumfile===false){
+			throw new \RuntimeException("Failed opening  sumfile :  $sumfilePath");
+		}
 
 		$orgPathLen=strlen($this->path)+1;
 
@@ -153,24 +157,36 @@ class Backup
 				if($key->isDir()){
 					// Push back files
 					$stack->push( $key->getPathName() );
+
 				}elseif($key->isFile()){
 
 					$path=$key->getPathName();
 					$relPath=(substr($path,$orgPathLen));
 
-					$size=$key->getSize();
+					$fields = array();
+
+					$fields[] = $key->getSize();
+
 					$sum=sha1_file($path);
 					if($sum===false){
-						throw new \RuntimeException('Error while calculating sum of file '.$path);
+						throw new \RuntimeException("Error while calculating sum of file $path");
 					}
 
-					if($sumfile->fwrite( $sum.' '.$size.' '.$relPath."\n")===false){
+					$fields[] = $sum;
+					$fields[] = $relPath;
+
+					if(fputcsv($sumfile, $fields, "," )===false){
 						throw new \RuntimeException("Failed writing to sumfile :  $sumfilePath");
 					}
 
 				}
 
 			}
+
+		}
+
+		if(fclose($sumfile )===false){
+			throw new \RuntimeException("Failed writing to sumfile :  $sumfilePath");
 		}
 
 		return true;
