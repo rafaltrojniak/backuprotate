@@ -100,7 +100,11 @@ class Backup
 			$this->verification = false;
 		}
 
-		$sumfile=fopen($this->getSumfilePath(), 'r');
+		$sumFilePath=$this->getSumfilePath();
+		if(!is_readable($sumFilePath)){
+			return 'File is not readable "'.addslashes($sumFilePath).'"';
+		}
+		$sumfile=fopen($sumFilePath, 'r');
 		if($sumfile === false){
 			return 'Failed to read file "'.addslashes($sumFilePath).'"';
 		}
