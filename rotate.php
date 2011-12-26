@@ -32,6 +32,7 @@ $commands=array(
 	array('r','rotate','Rotate backups'),
 	array('c','clean','Clean backups'),
 	array('f:','fill:','Fill checksums files in pickup','directory'),
+	array('t:','transform:','Transform old sumfile to new one (CSV)','directory'),
 	array('v','verify','Verify pickup backups'),
 	array('s','size-only','Verify only based on size'),
 	array('d','del-pickup','Clean picup directory as configured'),
@@ -87,6 +88,10 @@ foreach($options as $option=>$val){
 	case 'fill':
 	case 'f':
 		$commandQueue[]=new Command\Fill($val);
+		break;
+	case 'transform':
+	case 't':
+		$commandQueue[]=new Command\Transform($val);
 		break;
 	case 'del-pickup':
 	case 'd':

@@ -255,4 +255,46 @@ class Backup
 			throw new \RuntimeException( 'Failed to remove directory "'.$path.'"' );
 		}
 	}
+
+	/**
+	 * Transforms directory from old (space-separated) checksum file to CSV
+	 *
+	 * @return boolean
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function transform()
+	{
+		$oldfilePath=$this->path.'/checksums';
+		$oldDb = file($oldfilePath);
+		if($oldDb===false){
+			throw new \RuntimeException("Failed to read old sumfile : $oldfilePath");
+		}
+
+		$newfilePath=$this->getSumfilePath();
+		$newfile = fopen($newfilePath, "w");
+		if($newfile===false){
+			throw new \RuntimeException("Failed opening  newfile :  $newfilePath");
+		}
+
+		foreach($oldDb as $sumLine){
+
+			// Getting old
+			$tokens= explode(" ",trim($sumLine,"\n"));
+			$hash=array_shift($tokens);
+			$size=array_shift($tokens);
+			$name=implode($tokens);
+
+			// Creating new
+			$fields=array($hash,$size,$name);
+			if(fputcsv($newfile, $fields, "," )===false){
+				throw new \RuntimeException("Failed writing to newfile :  $newfilePath");
+			}
+
+		}
+
+		if(fclose($newfile )===false){
+			throw new \RuntimeException("Failed writing to newfile :  $newfilePath");
+		}
+		return true;
+	}
 }
