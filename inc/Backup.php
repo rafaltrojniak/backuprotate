@@ -244,20 +244,47 @@ class Backup
 	 */
 	public function delete()
 	{
-		$dir = new \DirectoryIterator($this->path);
-		foreach ($dir as $fileinfo) {
-			if($fileinfo->isDir()){
-				continue;
+		$stack = new \SplStack();
+		$stack -> push ( $this->getPath());
+
+		$pushed=null;
+
+		while(!$stack->isEmpty()){
+			$pushed=false;
+			$dirPath=$stack->pop();
+
+			$dir = new \DirectoryIterator($dirPath);
+			foreach ($dir as $file) {
+
+				// Skipping '.' and '..'
+				if(in_array($file->getFilename(), array('..','.'))){
+					continue;
+				}
+
+				if($file->isDir()){
+					// Push current
+					$stack -> push ( $dirPath );
+					// Push new one
+					$stack -> push ( $file->getPathName() );
+
+					$pushed=true;
+
+					break;
+				}
+
+				$path=$file->getPathName();
+				if(!unlink($path)){
+					throw new \RuntimeException( 'Failed to remove "'.$path.'"');
+				}
+
 			}
-			$path=$fileinfo->getPathName();
-			if(!unlink($path)){
-				throw new \RuntimeException( 'Failed to remove "'.$path.'"');
+
+			if(!$pushed and !rmdir($dirPath)){
+				throw new \RuntimeException( 'Failed to remove directory "'.$path.'"' );
 			}
+
 		}
 		
-		if(!rmdir($this->path)){
-			throw new \RuntimeException( 'Failed to remove directory "'.$path.'"' );
-		}
 	}
 
 	/**
