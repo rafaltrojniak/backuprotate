@@ -72,6 +72,17 @@ class Backup
 	}
 
 	/** 
+	 * Returns sumfile path 
+	 * 
+	 * @return string
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getSumfilePath()
+	{
+		return $this->path.'/'.self::SUMFILE;
+	}
+
+	/** 
 	 * Werifies checksums of the files in the backup 
 	 * 
 	 * @param boolean $sizeOnly Flag if only size should be checked
@@ -89,17 +100,20 @@ class Backup
 			$this->verification = false;
 		}
 
-		$sumFilePath=$this->path.'/'.self::SUMFILE;
-		if(!is_readable($sumFilePath)){
-			return 'Canot find sumfile for "'.addslashes($sumFilePath).'"';
+		$sumfile=fopen($this->getSumfilePath(), 'r');
+		if($sumfile === false){
+			return 'Failed to read file "'.addslashes($sumFilePath).'"';
 		}
-		$sums=file($sumFilePath);
-		foreach($sums as $sumLine)
+
+		while(!feof($sumfile))
 		{
-			$tokens= explode(" ",trim($sumLine,"\n"));
-			$hash=array_shift($tokens);
-			$size=array_shift($tokens);
-			$name=implode($tokens);
+			$tokens =fgetcsv($sumfile);
+			if($tokens===false and feof($sumfile)) {
+				continue;
+			}
+
+			list($size, $hash, $name ) = $tokens;
+
 			$filePath=$this->path.'/'.$name;
 			if(!is_readable($filePath)){
 				return 'Canot read file "'.
@@ -122,16 +136,16 @@ class Backup
 		return true;
 	}
 
-	/** 
-	 * Filles checksums of the files in the backups 
-	 * 
+	/**
+	 * Filles checksums of the files in the backups
+	 *
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 * @return  Boolean True if successed
 	 */
 	public function fill()
 	{
 		// Creating logfile
-		$sumfilePath=$this->path.'/'.self::SUMFILE;
+		$sumfilePath=$this->getSumfilePath();
 		$sumfile = fopen($sumfilePath, "w");
 		if($sumfile===false){
 			throw new \RuntimeException("Failed opening  sumfile :  $sumfilePath");
