@@ -68,7 +68,7 @@ class Backup
 	 */
 	public function getPath()
 	{
-		return basename($this->path);
+		return $this->path;
 	}
 
 	/** 
