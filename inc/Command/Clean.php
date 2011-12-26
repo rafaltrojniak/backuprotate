@@ -1,4 +1,13 @@
 <?php
+/**
+ * file name  : Command/Clean.php
+ * @authors    : Rafał Trójniak rafal@trojniak.net
+ * created    : pon, 26 gru 2011, 22:25:02
+ * copyright  :
+ *
+ * modifications:
+ *
+ */
 
 namespace Command;
 
@@ -7,7 +16,14 @@ namespace Command;
  **/
 class Clean implements \Command
 {
-	
+
+	/**
+	 * Runs cleanning command on all pickupdirs
+	 *
+	 * @param \BackupStore $store
+	 * @return int returnstate
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	function run(\BackupStore $store)
 	{
 		echo "== Clean\n";

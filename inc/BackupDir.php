@@ -1,42 +1,42 @@
 <?php
 
-/** 
- * One backup dir abstract 
- * 
+/**
+ * One backup dir abstract
+ *
  * @author Rafał Trójniak rafal@trojniak.net
- * @version 
+ * @version
  */
 class BackupDir
 {
-	
-	/** 
-	 * Path to that backupdir 
+
+	/**
+	 * Path to that backupdir
 	 */
 	private $config;
-	
-	/** 
-	 * List of backups inside that directory 
+
+	/**
+	 * List of backups inside that directory
 	 */
 	private $backups;
 
-	/** 
-	 * Algorithm used for rotation 
+	/**
+	 * Algorithm used for rotation
 	 */
 	private $rotateAlgo;
 
-	/** 
+	/**
 	 * Algorithm used for cleanning backups over limits
 	 */
 	private $cleanerAlgo;
 
-	/** 
-	 * Cloner object for the queue 
+	/**
+	 * Cloner object for the queue
 	 */
 	private $cloner;
 
-	/** 
-	 * Builds from the config 
-	 * 
+	/**
+	 * Builds from the config
+	 *
 	 * @param array $config Config from $config['backups']
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -45,9 +45,9 @@ class BackupDir
 		$this->config=$config;
 	}
 
-	/** 
-	 * Returns directory path 
-	 * 
+	/**
+	 * Returns directory path
+	 *
 	 * @return string
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -56,9 +56,9 @@ class BackupDir
 		return $this->config['dir'];
 	}
 
-	/** 
-	 * Returns backup list 
-	 * 
+	/**
+	 * Returns backup list
+	 *
 	 * @return array
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -79,10 +79,10 @@ class BackupDir
 		return $this->backups;
 	}
 
-	/** 
-	 * Picks up new backups from supplied pickup dir 
-	 * 
-	 * @param BackupDir $pickup 
+	/**
+	 * Picks up new backups from supplied pickup dir
+	 *
+	 * @param BackupDir $pickup
 	 * @return array list of picked backups
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -102,9 +102,9 @@ class BackupDir
 		return $toPickup;
 	}
 
-	/** 
-	 * Gets pickup algorithm for the rotation 
-	 * 
+	/**
+	 * Gets pickup algorithm for the rotation
+	 *
 	 * @return RotateAlgo
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -118,9 +118,9 @@ class BackupDir
 		return $this->rotateAlgo;
 	}
 
-	/** 
-	 * Returns cloner 
-	 * 
+	/**
+	 * Returns cloner
+	 *
 	 * @return Cloner Cloner configured for that backupdir
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -138,10 +138,10 @@ class BackupDir
 		return $this->cloner;
 	}
 
-	/** 
-	 * Adds backup to the list 
-	 * 
-	 * @param Backup $backup 
+	/**
+	 * Adds backup to the list
+	 *
+	 * @param Backup $backup
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function addBackup(Backup $backup)
@@ -150,15 +150,22 @@ class BackupDir
 		ksort($this->backups);
 	}
 
+	/**
+	 * Retufns backup path from supplied time
+	 *
+	 * @param DateTime $date
+	 * @return string path for backup
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	private function getBackupPathFromTime(DateTime $date)
 	{
 		return $this->getPath().'/'. $date-> format(DateTime::ISO8601);
 	}
 
-	/** 
-	 * Returns Cleaner algorithm for that backupdir 
-	 * 
-	 * @return 
+	/**
+	 * Returns Cleaner algorithm for that backupdir
+	 *
+	 * @return
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	public function getCleanerAlgo()
@@ -171,9 +178,9 @@ class BackupDir
 		return $this->cleanerAlgo;
 	}
 
-	/** 
-	 * Cleans backups calculated by clean algorithm 
-	 * 
+	/**
+	 * Cleans backups calculated by clean algorithm
+	 *
 	 * @return Array List of Cleaned backups
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -187,11 +194,11 @@ class BackupDir
 		return $toClean;
 	}
 
-	/** 
-	 * Forgets about the backup 
+	/**
+	 * Forgets about the backup
 	 * This deletes it from the list, but not from the disk
-	 * 
-	 * @param Backup $backup 
+	 *
+	 * @param Backup $backup
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	public function forgetBackup(Backup $backup)
@@ -199,9 +206,9 @@ class BackupDir
 		unset($this->backups[$backup->getCreation()->getTimestamp()]);
 	}
 
-	/** 
-	 * Returns newest backup from the directory 
-	 * 
+	/**
+	 * Returns newest backup from the directory
+	 *
 	 * @return Backup|null
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */

@@ -1,4 +1,13 @@
 <?php
+/**
+ * file name  : Command/DelPickup.php
+ * @authors    : Rafał Trójniak rafal@trojniak.net
+ * created    : pon, 26 gru 2011, 22:24:03
+ * copyright  :
+ *
+ * modifications:
+ *
+ */
 
 namespace Command;
 
@@ -7,7 +16,14 @@ namespace Command;
  **/
 class DelPickup implements \Command
 {
-	
+
+	/**
+	 * Cleans pickup according by rules
+	 *
+	 * @param \BackupStore $store
+	 * @return int returnstate
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	function run(\BackupStore $store)
 	{
 		echo "== Delete old pickup\n";

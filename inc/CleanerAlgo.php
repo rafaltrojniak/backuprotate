@@ -4,11 +4,11 @@
  **/
 interface CleanerAlgo
 {
-	
-	/** 
-	 * Runs cleaner algorithm on the backupdir 
-	 * 
-	 * @param Backupdir $backupdir 
+
+	/**
+	 * Runs cleaner algorithm on the backupdir
+	 *
+	 * @param Backupdir $backupdir
 	 * @return Array List of backupdirs for cleanning
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */

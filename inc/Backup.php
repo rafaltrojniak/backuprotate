@@ -1,32 +1,36 @@
 <?php
 /**
- * 
+ * Class represent single backup made in particular moment of time
+ * Backup may consist of many files and directories.
+ *
+ * Backup can containt sumfile that contains sizes, checksums and names
+ * of files in backup. This file can be used for verification.
  **/
 class Backup
 {
 
-	/** 
-	 * Path of the backup 
+	/**
+	 * Path of the backup
 	 */
 	private $path;
-	
-	/** 
-	 * Creation date of the backup 
+
+	/**
+	 * Creation date of the backup
 	 */
 	private $creation;
 
-	/** 
-	 * Name of the checksum file 
+	/**
+	 * Name of the checksum file
 	 */
 	const SUMFILE = "checksums.csv";
 
-	/** 
-	 * Verification cache 
+	/**
+	 * Verification cache
 	 */
 	private $verification;
 
-	/** 
-	 * Array of names to ignore during generation 
+	/**
+	 * Array of names to ignore during generation
 	 */
 	static private $ignoreFilenames=array(
 		"checksums",
@@ -35,10 +39,10 @@ class Backup
 		"..",
 	);
 
-	
-	/** 
-	 * Create backup 
-	 * 
+
+	/**
+	 * Create backup
+	 *
 	 * @param \DateTime $creation Creation datetime
 	 * @param string $path  Path where backup is
 	 * @author : Rafał Trójniak rafal@trojniak.net
@@ -49,9 +53,9 @@ class Backup
 		$this->path=$path;
 	}
 
-	/** 
-	 * Returns Date of the backup 
-	 * 
+	/**
+	 * Returns Date of the backup
+	 *
 	 * @return \DateTime
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -60,9 +64,9 @@ class Backup
 		return $this->creation;
 	}
 
-	/** 
-	 * Returns path to the backup 
-	 * 
+	/**
+	 * Returns path to the backup
+	 *
 	 * @return string
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -71,9 +75,9 @@ class Backup
 		return $this->path;
 	}
 
-	/** 
-	 * Returns sumfile path 
-	 * 
+	/**
+	 * Returns sumfile path
+	 *
 	 * @return string
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -82,9 +86,9 @@ class Backup
 		return $this->path.'/'.self::SUMFILE;
 	}
 
-	/** 
-	 * Werifies checksums of the files in the backup 
-	 * 
+	/**
+	 * Werifies checksums of the files in the backup
+	 *
 	 * @param boolean $sizeOnly Flag if only size should be checked
 	 * @return Boolean|string true if everything is OK, String containing message if not
 	 * @author : Rafał Trójniak rafal@trojniak.net
@@ -210,10 +214,10 @@ class Backup
 		return true;
 	}
 
-	/** 
-	 * Creates backup from full path 
-	 * 
-	 * @param $fillPath 
+	/**
+	 * Creates backup from full path
+	 *
+	 * @param SplFileInfo $fileinfo
 	 * @return Backup
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -237,9 +241,9 @@ class Backup
 		);
 	}
 
-	/** 
-	 * Deletes backup 
-	 * 
+	/**
+	 * Deletes backup
+	 *
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	public function delete()
@@ -284,7 +288,7 @@ class Backup
 			}
 
 		}
-		
+
 	}
 
 	/**

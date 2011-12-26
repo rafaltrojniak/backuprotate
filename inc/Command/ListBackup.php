@@ -1,20 +1,46 @@
 <?php
+/**
+ * file name  : Command/ListBackup.php
+ * @authors    : Rafał Trójniak rafal@trojniak.net
+ * created    : pon, 26 gru 2011, 22:24:42
+ * copyright  :
+ *
+ * modifications:
+ *
+ */
 
 namespace Command;
 
 /**
- * 
+ * Command lists content of pickup directory
  **/
 class ListBackup implements \Command
 {
 
+	/**
+	 * Bucket for printing, null if all should be printed
+	 */
 	private $bucket;
-	
+
+	/**
+	 *  Construct command based on supplied bucket
+	 *
+	 * @param $bucket
+	 * @return
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	function __construct($bucket)
 	{
 		$this->bucket=$bucket;
 	}
 
+	/**
+	 * Prints bucket contents
+	 *
+	 * @param \BackupStore $store
+	 * @return int returnstate
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	function run(\BackupStore $store)
 	{
 		if($this->bucket!==false){
@@ -30,6 +56,12 @@ class ListBackup implements \Command
 		}
 	}
 
+	/**
+	 * Prints content of single backupdir
+	 *
+	 * @param \BackupDir $dir
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	public function listBackup(\BackupDir $dir)
 	{
 		foreach($dir->getBackups() as $backup){

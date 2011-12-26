@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * file name  : inc/RotateAlgo/Grouped.php
+ * @authors    : Rafał Trójniak rafal@trojniak.net
+ * created    : pon, 26 gru 2011, 22:23:25
+ * copyright  :
+ *
+ * modifications:
+ *
+ */
 namespace RotateAlgo;
 
 /**
@@ -8,16 +16,22 @@ namespace RotateAlgo;
 class Grouped implements \RotateAlgo
 {
 
-	/** 
-	 * Groupping token 
+	/**
+	 * Groupping token
 	 */
 	private $group;
-	
-	/** 
-	 * Offset of the timestamp used in creating token 
+
+	/**
+	 * Offset of the timestamp used in creating token
 	 */
 	private $offset;
 
+	/**
+	 * Constructs algorithm from supplied arguments
+	 *
+	 * @param array $config
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	public function __construct($config)
 	{
 		extract($config);
@@ -28,6 +42,13 @@ class Grouped implements \RotateAlgo
 		}
 	}
 
+	/**
+	 * Generates token for backup
+	 *
+	 * @param \Backup $backup
+	 * @return srting token generated based on grouping string
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	private function genToken(\Backup $backup)
 	{
 		$created = clone $backup->getCreation();
@@ -36,7 +57,15 @@ class Grouped implements \RotateAlgo
 		}
 		return $created->format($this->group);
 	}
-	
+
+	/**
+	 * Runs pickup command
+	 *
+	 * @param \BackupDir $to
+	 * @param \BackupDir $from
+	 * @return  array Array of backups to pickup
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	public function pickup(\BackupDir $to, \BackupDir $from)
 	{
 		$current=array();
@@ -46,7 +75,7 @@ class Grouped implements \RotateAlgo
 		{
 			$token = $this->genToken($backup);
 
-			if(!array_key_exists($token, $current) or 
+			if(!array_key_exists($token, $current) or
 				$backup->getCreation()->getTimestamp()<
 				$current[$token]->getCreation()->getTimestamp()){
 				$current[$token]=$backup;
@@ -80,8 +109,16 @@ class Grouped implements \RotateAlgo
 		return $pickup;
 	}
 
+	/**
+	 * cleans backups that duplicates in group
+	 *
+	 * @param \BackupDir $dir
+	 * @return array Array of backps to clean
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
 	public function clean(\BackupDir $dir)
 	{
+		// TODO
 		throw new \Exception('TODO');
 	}
 }

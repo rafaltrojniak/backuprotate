@@ -1,19 +1,30 @@
 <?php
+/**
+ * file name  : CleanerAlgo/Count.php
+ * @authors    : Rafał Trójniak rafal@trojniak.net
+ * created    : pon, 26 gru 2011, 22:28:33
+ * copyright  :
+ *
+ * modifications:
+ *
+ */
+
 namespace CleanerAlgo;
+
 /**
  * Cleans all backups over supplied count
  **/
 class Count implements \CleanerAlgo
 {
 
-	/** 
-	 * Count of backups allowed to preserve 
+	/**
+	 * Count of backups allowed to preserve
 	 */
 	public $count;
 
-	/** 
-	 * Configures new algorithm 
-	 * 
+	/**
+	 * Configures new algorithm
+	 *
 	 * @param Array $config Configuration parameters
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -22,10 +33,10 @@ class Count implements \CleanerAlgo
 		$this->count=$config['count'];
 	}
 
-	/** 
-	 * Runs cleaner algorithm on the backupdir 
-	 * 
-	 * @param Backupdir $backupdir 
+	/**
+	 * Runs cleaner algorithm on the backupdir
+	 *
+	 * @param Backupdir $backupDir
 	 * @return Array List of backupdirs for cleanning
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */

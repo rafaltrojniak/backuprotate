@@ -1,26 +1,28 @@
 <?php
 /**
- * Stores objects for all backups
+ * Stores objects for all backupdirs
  **/
 class BackupStore
 {
 
-	/** 
-	 * Config array 
+	/**
+	 * Config array
 	 */
 	private $config;
 
-	/** 
-	 * Keeps objects for dirs 
+	/**
+	 * Keeps objects for dirs
 	 */
 	private $dirs;
 
-	/** 
-	 * Pickup dir 
+	/**
+	 * Pickup dir
 	 */
 	private $pickup;
-	
-	/** 
+
+	/**
+	 * Creates store from supplied configuration
+	 *
 	 * @param array $config Configuration of the script
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -29,10 +31,10 @@ class BackupStore
 		$this->config=$config;
 	}
 
-	/** 
-	 * Get single backupdir by name 
-	 * 
-	 * @param string $name 
+	/**
+	 * Get single backupdir by name
+	 *
+	 * @param string $name
 	 * @return BackupDir
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -45,9 +47,9 @@ class BackupStore
 		return null;
 	}
 
-	/** 
-	 * Get list of backupDirs 
-	 * 
+	/**
+	 * Get list of backupDirs
+	 *
 	 * @return Array
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
@@ -64,9 +66,9 @@ class BackupStore
 		return $this->dirs;
 	}
 
-	/** 
-	 * Return pickup backup 
-	 * 
+	/**
+	 * Return pickup backup
+	 *
 	 * @return BackupDir
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
