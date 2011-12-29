@@ -45,17 +45,20 @@ class Verify implements \Command
 		echo "== Verify\n";
 		$pickup = $store->getPickup();
 		$backups=$pickup->getBackups();
+		$status=true;
 
 		foreach($backups as $id=>$backup)
 		{
 			$ret=$backup->verify($this->sizeOnly);
 			if($ret!==true){
 				$pickup->forgetBackup($backup);
-					echo "\t!\t".$backup->getCreation()->format(\DateTime::ISO8601)."\t:$ret\n";
+				echo "\t!\t".$backup->getCreation()->format(\DateTime::ISO8601)."\t:$ret\n";
+				$status=-1;
 			}else{
 					echo "\t\t".$backup->getCreation()->format(\DateTime::ISO8601)."\n";
 			}
 		}
+		return $status;
 	}
 }
 

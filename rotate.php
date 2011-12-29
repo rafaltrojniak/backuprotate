@@ -146,10 +146,15 @@ if(!count($commandQueue)){
 	exit(1);
 }
 
-foreach($commandQueue as $com)
-{
-	$ret=$com->run($store);
-	if($ret){
-		exit($ret);
+try{
+	foreach($commandQueue as $com)
+	{
+		$ret=$com->run($store);
+		if($ret!==true){
+			exit($ret);
+		}
 	}
+}catch(\Exception $e){
+	echo 'Got exception ('.get_class($e).'):'.$e->getMessage()."\n";
+	exit(-1);
 }

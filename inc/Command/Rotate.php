@@ -37,5 +37,6 @@ class Rotate implements \Command
 
 			}
 		}
+		return true;
 	}
 }

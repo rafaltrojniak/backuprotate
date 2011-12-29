@@ -54,6 +54,7 @@ class ListBackup implements \Command
 				$this->listBackup($dir);
 			}
 		}
+		return true;
 	}
 
 	/**

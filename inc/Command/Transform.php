@@ -45,6 +45,6 @@ class Transform implements \Command
 		echo "== Transform\n";
 		$fileInfo= new \SplFileInfo($this->path);
 		$backup = \Backup::create($fileInfo);
-		return !$backup->transform();
+		return $backup->transform();
 	}
 }

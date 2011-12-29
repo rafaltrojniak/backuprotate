@@ -45,6 +45,6 @@ class Fill implements \Command
 		echo "== Fill\n";
 		$fileInfo= new \SplFileInfo($this->path);
 		$backup = \Backup::create($fileInfo);
-		return !$backup->fill();
+		return $backup->fill();
 	}
 }

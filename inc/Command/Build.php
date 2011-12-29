@@ -44,6 +44,10 @@ class Build implements \Command
 			echo "\n";
 		}
 
+		if($ret===0){
+			return true;
+		}
+
 		return $ret;
 	}
 }
