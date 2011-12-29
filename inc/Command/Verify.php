@@ -23,14 +23,20 @@ class Verify implements \Command
 	private $sizeOnly;
 
 	/**
+	 * Backup for verification
+	 */
+	private $backup;
+
+	/**
 	 * Construct commands, based on sizeOnly flag
 	 *
 	 * @param $sizeOnly
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	public function __construct($sizeOnly)
+	public function __construct($sizeOnly, $backup)
 	{
 		$this->sizeOnly=$sizeOnly;
+		$this->backup=$backup;
 	}
 
 	/**
@@ -42,17 +48,36 @@ class Verify implements \Command
 	 */
 	function run(\BackupStore $store)
 	{
+		var_dump($this->backup);
 		echo "== Verify\n";
-		$pickup = $store->getPickup();
-		$backups=$pickup->getBackups();
+		if(is_string($this->backup)){
+			$fileinfo = new \SplFileInfo($this->backup);
+			$backup=\Backup::create($fileinfo);
+			$backups=array($backup);
+		}else{
+			$pickup = $store->getPickup();
+			$backups=$pickup->getBackups();
+		}
+		return $this->runVerify($backups,$store);
+	}
+
+	/**
+	 * Runs verify on array of backups
+	 *
+	 * @param $backups
+	 * @return boolean|int
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function runVerify($backups, $store)
+	{
 		$status=true;
 
 		foreach($backups as $id=>$backup)
 		{
 			$ret=$backup->verify($this->sizeOnly);
 			if($ret!==true){
-				$pickup->forgetBackup($backup);
 				echo "\t!\t".$backup->getCreation()->format(\DateTime::ISO8601)."\t:$ret\n";
+				$store->forgetBackup($backup);
 				$status=-1;
 			}else{
 					echo "\t\t".$backup->getCreation()->format(\DateTime::ISO8601)."\n";

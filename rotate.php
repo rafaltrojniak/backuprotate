@@ -33,7 +33,7 @@ $commands=array(
 	array('c','clean','Clean backups'),
 	array('f:','fill:','Fill checksums files in pickup','directory'),
 	array('t:','transform:','Transform old sumfile to new one (CSV)','directory'),
-	array('v','verify','Verify pickup backups'),
+	array('v::','verify::','Verify pickup backups','directory'),
 	array('s','size-only','Verify only based on size'),
 	array('d','del-pickup','Clean picup directory as configured'),
 	array('b','build','Build backup bucket directories'),
@@ -103,7 +103,7 @@ foreach($options as $option=>$val){
 		break;
 	case 'verify':
 	case 'v':
-		$commandQueue[]=new Command\Verify($flags['sizeOnly']);
+		$commandQueue[]=new Command\Verify($flags['sizeOnly'], $val);
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");

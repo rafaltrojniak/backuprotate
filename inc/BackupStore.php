@@ -79,4 +79,19 @@ class BackupStore
 		}
 		return $this->pickup;
 	}
+
+	/**
+	 * Forgets backup from all backupdirs
+	 *
+	 * @param \Backup $backup
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function forgetBackup(\Backup $backup)
+	{
+		foreach($this->getDirs() as $dir)
+		{
+			$dir->forgetBackup($backup);
+		}
+		$this->getPickup()->forgetBackup($backup);
+	}
 }
