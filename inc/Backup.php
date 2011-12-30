@@ -315,8 +315,8 @@ class Backup
 
 			// Getting old
 			$tokens= explode(" ",trim($sumLine,"\n"));
-			$hash=array_shift($tokens);
 			$size=array_shift($tokens);
+			$hash=array_shift($tokens);
 			$name=implode($tokens);
 
 			// Creating new
