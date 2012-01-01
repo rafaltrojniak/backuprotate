@@ -51,6 +51,11 @@ class Backup
 	{
 		$this->creation=$creation;
 		$this->path=$path;
+
+		$this->verification=array(
+			true=>null,
+			false=>null,
+		);
 	}
 
 	/**
@@ -95,14 +100,12 @@ class Backup
 	 */
 	public function verify($sizeOnly=false)
 	{
-		if(!is_null($this->verification)){
-			return $this->verification;
+		$fromCache=$this->verification[$sizeOnly];
+		if(!is_null($fromCache)){
+			return $fromCache;
 		}
 
-		// Caching only checksums
-		if(!$sizeOnly){
-			$this->verification = false;
-		}
+		$this->verification[$sizeOnly] = false;
 
 		$sumFilePath=$this->getSumfilePath();
 		if(!is_readable($sumFilePath)){
@@ -138,9 +141,8 @@ class Backup
 		}
 
 		// Caching only checksums
-		if(!$sizeOnly){
-			$this->verification = true;
-		}
+		$this->verification[$sizeOnly] = true;
+
 		return true;
 	}
 
