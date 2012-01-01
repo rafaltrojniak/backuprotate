@@ -68,11 +68,21 @@ class BackupDir
 		{
 			$this->backups=array();
 			$dir = new DirectoryIterator( $this->getPath());
-			foreach ($dir as $fileinfo) {
-				if (!$fileinfo->isDot()) {
-					$backup = Backup::create($fileinfo);
-					$this->addBackup($backup);
+			foreach ($dir as $fileinfo)
+			{
+
+				// Removing '..'
+				if ($fileinfo->isDot() or !$fileinfo->isDir()) {
+					continue;
 				}
+				// Checking dotfile
+				$name=$fileinfo->getFileName();
+				if( $name[0]=='.') {
+					continue;
+				}
+
+				$backup = Backup::create($fileinfo);
+				$this->addBackup($backup);
 			}
 			ksort($this->backups);
 		}
