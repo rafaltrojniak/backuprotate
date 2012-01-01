@@ -156,5 +156,6 @@ try{
 	}
 }catch(\Exception $e){
 	echo 'Got exception ('.get_class($e).'):'.$e->getMessage()."\n";
+	echo $e->getTraceAsString();
 	exit(-1);
 }
