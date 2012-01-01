@@ -35,6 +35,11 @@ class BackupDir
 	private $cloner;
 
 	/**
+	 * Resource used for locking
+	 */
+	private $lockResource;
+
+	/**
 	 * Builds from the config
 	 *
 	 * @param array $config Config from $config['backups']
@@ -64,6 +69,8 @@ class BackupDir
 	 */
 	public function getBackups()
 	{
+		$this->lock();
+
 		if(is_null($this->backups))
 		{
 			$this->backups=array();
@@ -98,6 +105,8 @@ class BackupDir
 	 */
 	public function pickup(BackupDir $pickup)
 	{
+		$this->lock();
+
 		$rotateAlgo= $this->getRotateAlgo();
 
 		$toPickup=$rotateAlgo->pickup($this, $pickup);
@@ -196,6 +205,8 @@ class BackupDir
 	 */
 	public function clean()
 	{
+		$this->lock();
+
 		$cleaner = $this->getCleanerAlgo();
 		$toClean = $cleaner->clean($this);
 		foreach($toClean as $backup){
@@ -232,5 +243,18 @@ class BackupDir
 		arsort($keys);
 		$first=array_shift($keys);
 		return $this->backups[$first];
+	}
+
+	/**
+	 * Exclusive locks usage of the backupdir
+	 *
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function lock()
+	{
+		if(is_null($this->lockResource)){
+			$this->lockResource = fopen($this->getPath(),'r');
+		}
+		flock($this->lockResource,LOCK_EX);
 	}
 }
