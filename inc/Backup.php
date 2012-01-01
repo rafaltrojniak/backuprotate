@@ -213,6 +213,10 @@ class Backup
 			throw new \RuntimeException("Failed writing to sumfile :  $sumfilePath");
 		}
 
+		// Saving checksums
+		$this->verification[true] = true;
+		$this->verification[false] = true;
+
 		return true;
 	}
 
