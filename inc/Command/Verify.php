@@ -48,7 +48,6 @@ class Verify implements \Command
 	 */
 	function run(\BackupStore $store)
 	{
-		var_dump($this->backup);
 		echo "== Verify\n";
 		if(is_string($this->backup)){
 			$fileinfo = new \SplFileInfo($this->backup);
