@@ -70,5 +70,28 @@ return array(
 		'clean_opts'=>array(
 			'count'=>2,
 		),
-	)
+	),
+	'checks'=>array(
+		'size'=>array(
+			'min_crit'=>'10M',
+			'min_warn'=>'11M',
+			'max_warn'=>'1G',
+			'max_crit'=>'1T',
+		),
+		'count'=>array(
+			'min_crit'=>2900,
+			'min_warn'=>3000,
+			'max_warn'=>4000,
+			'max_crit'=>5000,
+		),
+		'oldest'=>array(
+			// Oldest backups from all is not younger than some period
+			// Oldest backups from all is not younger than point of time
+		),
+		'newest'=>array(
+			// Newset backup in pickup is not older than
+			// Newset backup in all are not older than
+			// Defined per-backupdir
+		),
+	),
 );

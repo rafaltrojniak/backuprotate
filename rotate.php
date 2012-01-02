@@ -37,6 +37,7 @@ $commands=array(
 	array('s','size-only','Verify only based on size'),
 	array('d','del-pickup','Clean picup directory as configured'),
 	array('b','build','Build backup bucket directories'),
+	array('n:','nagios-check:','Runs checks and outputs in nagios format','bucket:checks,'),
 );
 
 $shortOpt=null;
@@ -110,6 +111,10 @@ foreach($options as $option=>$val){
 	case 'build':
 	case 'b':
 		$commandQueue[]=new Command\Build();
+		break;
+	case 'nagios-check':
+	case 'n':
+		$commandQueue[]=new Command\NagiosCheck($val);
 		break;
 	case 'help':
 	case 'h':
