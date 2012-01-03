@@ -101,6 +101,39 @@ class NagiosCheck implements \Command
 	}
 
 	/**
+	 * Transofrm the size with units (kmgt) to float
+	 *
+	 * @param string $str Size with unit
+	 * @return float
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function transformSize($str)
+	{
+		if(is_string($str)){
+			$transform=(float)substr($str,0,-1);
+			switch(strtolower(substr($str,-1))){
+				case 't';
+					$transform *= 1024;
+				case 'g';
+					$transform *= 1024;
+				case 'm';
+					$transform *= 1024;
+				case 'k':
+					$transform *= 1024;
+					break;
+				default:
+					$transform=(float)$str;
+			}
+			return $transform;
+		}elseif(is_numeric($str)){
+			return (float)$str;
+		}elseif(is_float($str) or is_int($str)){
+			return (float)$str;
+		}
+		throw new \RuntimeException('Cannot parse string "'.addslashes($str).'" to size');
+	}
+
+	/**
 	 * Checks size of the backups in the directory
 	 *
 	 * @param array $config
@@ -114,27 +147,9 @@ class NagiosCheck implements \Command
 		// TODO Split in to smaller pices
 		// Transform size to bytes
 		$sizeKeys=array( "min_crit", "min_warn", "max_warn", "max_crit");
-		$parsed=array();
 		foreach($sizeKeys as $key){
 			if(array_key_exists($key,$config)){
-				$val=$config[$key];
-				if(is_string($val)){
-					$transform=(float)substr($val,0,-1);
-					switch(strtolower(substr($val,-1))){
-						case 't';
-							$transform *= 1024;
-						case 'g';
-							$transform *= 1024;
-						case 'm';
-							$transform *= 1024;
-						case 'k':
-							$transform *= 1024;
-							break;
-						default:
-							$transform=(float)$val;
-					}
-				}
-				$parsed[$key]=$transform;
+				$config[$key]=$this->transformSize($config[$key]);
 			}
 		}
 
@@ -151,39 +166,39 @@ class NagiosCheck implements \Command
 
 			$size=$backup->getSumSize();
 
-			if(array_key_exists('min_warn',$parsed)){
+			if(array_key_exists('min_warn',$config)){
 				$checkCount++;
 				$checkTypes['min_warn']=true;
-				if( $size<$parsed['min_warn']) {
+				if( $size<$config['min_warn']) {
 					$ret=1;
-					$message="WARN:Size ($size) is smaller than ".$parsed['min_warn'];
+					$message="WARN:Size ($size) is smaller than ".$config['min_warn'];
 				}
 			}
 
-			if(array_key_exists('max_warn',$parsed)){
+			if(array_key_exists('max_warn',$config)){
 				$checkCount++;
 				$checkTypes['max_warn']=true;
-				if( $size>$parsed['max_warn']) {
+				if( $size>$config['max_warn']) {
 					$ret=1;
-					$message="WARN:Size ($size) is larger than ".$parsed['max_warn'];
+					$message="WARN:Size ($size) is larger than ".$config['max_warn'];
 				}
 			}
 
-			if(array_key_exists('min_crit',$parsed)){
+			if(array_key_exists('min_crit',$config)){
 				$checkCount++;
 				$checkTypes['min_crit']=true;
-				if( $size<$parsed['min_crit']) {
+				if( $size<$config['min_crit']) {
 					$ret=2;
-					$message="CRIT:Size ($size) is smaller than ".$parsed['min_crit'];
+					$message="CRIT:Size ($size) is smaller than ".$config['min_crit'];
 				}
 			}
 
-			if(array_key_exists('max_crit',$parsed)){
+			if(array_key_exists('max_crit',$config)){
 				$checkCount++;
 				$checkTypes['max_crit']=true;
-				if($size>$parsed['max_crit']) {
+				if($size>$config['max_crit']) {
 					$ret=2;
-					$message="CRIT:Size ($size) is larger than ".$parsed['max_crit'];
+					$message="CRIT:Size ($size) is larger than ".$config['max_crit'];
 				}
 			}
 		}
