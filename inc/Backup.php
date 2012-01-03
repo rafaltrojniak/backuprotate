@@ -30,6 +30,11 @@ class Backup
 	private $verification;
 
 	/**
+	 * Counters
+	 */
+	private $counters;
+
+	/**
 	 * Array of names to ignore during generation
 	 */
 	static private $ignoreFilenames=array(
@@ -337,5 +342,72 @@ class Backup
 			throw new \RuntimeException("Failed writing to newfile :  $newfilePath");
 		}
 		return true;
+	}
+
+	/**
+	 * Return sum size of the files
+	 *
+	 * @return float
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getSumSize()
+	{
+
+		$this->cacheCounters();
+
+		return $this->counters['size'];
+	}
+
+	/**
+	 * Return count of the files
+	 *
+	 * @return float
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getFileCount()
+	{
+
+		$this->cacheCounters();
+
+		return $this->counters['count'];
+	}
+
+	/**
+	 * Reads sumfile and calculates summary size and file count
+	 *
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function cacheCounters()
+	{
+		if(is_null($this->counters)){
+			$size=0;
+			$count=0;
+
+			$sumFilePath=$this->getSumfilePath();
+			if(!is_readable($sumFilePath)){
+				return 'File is not readable "'.addslashes($sumFilePath).'"';
+			}
+			$sumfile=fopen($sumFilePath, 'r');
+			if($sumfile === false){
+				return 'Failed to read file "'.addslashes($sumFilePath).'"';
+			}
+
+			while(!feof($sumfile))
+			{
+				$tokens =fgetcsv($sumfile);
+				if($tokens===false and feof($sumfile)) {
+					continue;
+				}
+
+				list($curSize, $hash, $name ) = $tokens;
+				$size+=$curSize;
+				$count++;
+			}
+
+			$this->counters=array(
+				'size'=>$size,
+				'count'=>$count,
+			);
+		}
 	}
 }

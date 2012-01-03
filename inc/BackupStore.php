@@ -94,4 +94,17 @@ class BackupStore
 		}
 		$this->getPickup()->forgetBackup($backup);
 	}
+
+	/**
+	 * Returns configuration of the checks
+	 *
+	 * @return array
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getChecksConfig()
+	{
+		if(!array_key_exists('checks',$this->config))
+			return array();
+		return $this->config['checks'];
+	}
 }
