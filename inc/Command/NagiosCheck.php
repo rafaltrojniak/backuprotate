@@ -80,7 +80,7 @@ class NagiosCheck implements \Command
 			$output[]=$comment;
 		}
 		if(in_array('count', $this->checks)){
-			list($ret,$comment) = $this->checkCount();
+			list($ret,$comment) = $this->checkCount($config['size'],$dir);
 			$states[$ret]=true;
 			$output[]=$comment;
 		}
@@ -101,25 +101,26 @@ class NagiosCheck implements \Command
 	}
 
 	/**
-	 * Transofrm the size with units (kmgt) to float
+	 * Transofrm the string with units (kmgt) to float
 	 *
 	 * @param string $str Size with unit
+	 * @param int $step Step for the unit
 	 * @return float
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function transformSize($str)
+	private function transformUnit($str, $step=1024)
 	{
 		if(is_string($str)){
 			$transform=(float)substr($str,0,-1);
 			switch(strtolower(substr($str,-1))){
 				case 't';
-					$transform *= 1024;
+					$transform *= $step;
 				case 'g';
-					$transform *= 1024;
+					$transform *= $step;
 				case 'm';
-					$transform *= 1024;
+					$transform *= $step;
 				case 'k':
-					$transform *= 1024;
+					$transform *= $step;
 					break;
 				default:
 					$transform=(float)$str;
@@ -134,6 +135,109 @@ class NagiosCheck implements \Command
 	}
 
 	/**
+	 * Runs standard warn and critical levels check on the directory
+	 *
+	 * @param array $levels Array of levels to check :  min_crit, min_warn, max_warn, max_crit
+	 * @param string $format Format of comment ( "%ret%:Size (%val%) is %relation% %level%"
+	 * @param float $value Value to check
+	 * @return array array( ret, message)
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function checkWarnCrit($levels, $format, $value)
+	{
+		$checkCount=0;
+		$checkTypes=array();
+		$ret=0;
+		$message="OK";
+		if(array_key_exists('min_warn',$levels)){
+			$checkCount++;
+			$checkTypes['min_warn']=true;
+			if( $value<$levels['min_warn']) {
+				$ret=1;
+				$message=$this->formatMessage($format, $value, 'min_warn', $levels['min_warn']);
+			}
+		}
+
+		if(array_key_exists('max_warn',$levels)){
+			$checkCount++;
+			$checkTypes['max_warn']=true;
+			if( $value>$levels['max_warn']) {
+				$ret=1;
+				$message=$this->formatMessage($format, $value, 'max_warn', $levels['max_warn']);
+			}
+		}
+
+		if(array_key_exists('min_crit',$levels)){
+			$checkCount++;
+			$checkTypes['min_crit']=true;
+			if( $value<$levels['min_crit']) {
+				$ret=2;
+				$message=$this->formatMessage($format, $value, 'min_crit', $levels['min_crit']);
+			}
+		}
+
+		if(array_key_exists('max_crit',$levels)){
+			$checkCount++;
+			$checkTypes['max_crit']=true;
+			if($value>$levels['max_crit']) {
+				$ret=2;
+				$message=$this->formatMessage($format, $value, 'max_crit', $levels['max_crit']);
+			}
+		}
+
+		return array($ret, $message, $checkCount, $checkTypes);
+	}
+
+	/**
+	 * Maps return state to state name
+	 *
+	 * @param $ret
+	 * @return
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function retState($ret)
+	{
+		$ret_map=array(
+			0 => 'OK',
+			1 => 'WARN',
+			2 => 'CRIT',
+			3 => 'UNKN',
+		);
+		if(array_key_exists($ret,$ret_map)){
+			return $ret_map[$ret];
+		}else{
+			throw new \RuntimeException("Rerturn state $ret unknonwn");
+		}
+	}
+
+	/**
+	 * Formats message for nagios output
+	 *
+	 * @param string $format Format string to use
+	 * @param float $value Actual value
+	 * @param string $check Check name
+	 * @param float $level Limit value
+	 * @return string Formated string
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function formatMessage($format, $value, $check, $level)
+	{
+		return str_replace(
+			array(
+				'%val%',
+				'%check%',
+				'%level%',
+			),
+			array(
+				$value,
+				$check,
+				$level,
+			),
+			$format
+		);
+	}
+
+	/**
 	 * Checks size of the backups in the directory
 	 *
 	 * @param array $config
@@ -143,77 +247,96 @@ class NagiosCheck implements \Command
 	 */
 	private function checkSize($config, \BackupDir $dir)
 	{
-		// TODO Refactor
-		// TODO Split in to smaller pices
+		return $this->checkByParam($config, $dir, 'getSumSize', 1024);
+	}
+
+	/**
+	 * Checks count of files in backups
+	 *
+	 * @param array $config
+	 * @param \BackupDir $dir
+	 * @return array consisting of return state and message
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function checkCount($config, \BackupDir $dir)
+	{
+		return $this->checkByParam($config, $dir, 'getFileCount', 1000);
+	}
+
+	/**
+	 * Runs checks on params generated for each backup
+	 *
+	 * @param array $config Config for tests
+	 * @param \BackupDir $dir Backupdir to test
+	 * @param $paramGetter Param getter
+	 * @param $paramStep  Param unit transformation step
+	 * @return array consisting of return state and message
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function checkByParam($config, \BackupDir $dir, $paramGetter, $paramStep)
+	{
 		// Transform size to bytes
-		$sizeKeys=array( "min_crit", "min_warn", "max_warn", "max_crit");
-		foreach($sizeKeys as $key){
+		$configKeys=array( "min_crit", "min_warn", "max_warn", "max_crit");
+		foreach($configKeys as $key){
 			if(array_key_exists($key,$config)){
-				$config[$key]=$this->transformSize($config[$key]);
+				$config[$key]=$this->transformUnit($config[$key],$paramStep);
 			}
 		}
 
-		// Sum up the sum of bytes
+		// Generate sizes
+		$vals=array();
+		$backups=$dir->getBackups();
+		foreach($backups as $key=>$backup){
+			$vals[ $backup->getDateAsString() ] = $backup->$paramGetter();
+		}
 
-		// Compare the sizes and generates state/message
-		$ret=0;
-		$message='OK';
+		// Runs checks
+		$format = "%val% (%check% %level%)" ;
 
-		$checkCount=0;
 		$checkTypes=array();
+		$checkCount=0;
+		$states=array();
+		foreach($vals as $key=>$val){
 
-		foreach($dir->getBackups() as $backup){
-
-			$size=$backup->getSumSize();
-
-			if(array_key_exists('min_warn',$config)){
-				$checkCount++;
-				$checkTypes['min_warn']=true;
-				if( $size<$config['min_warn']) {
-					$ret=1;
-					$message="WARN:Size ($size) is smaller than ".$config['min_warn'];
-				}
+			list($ret, $message, $count, $types)=$this->checkWarnCrit($config, $format, $val);
+			if(!array_key_exists($ret, $states)){
+				$states[$ret]=array();
 			}
 
-			if(array_key_exists('max_warn',$config)){
-				$checkCount++;
-				$checkTypes['max_warn']=true;
-				if( $size>$config['max_warn']) {
-					$ret=1;
-					$message="WARN:Size ($size) is larger than ".$config['max_warn'];
-				}
-			}
+			$states[$ret][$key]=$message;
 
-			if(array_key_exists('min_crit',$config)){
-				$checkCount++;
-				$checkTypes['min_crit']=true;
-				if( $size<$config['min_crit']) {
-					$ret=2;
-					$message="CRIT:Size ($size) is smaller than ".$config['min_crit'];
-				}
-			}
-
-			if(array_key_exists('max_crit',$config)){
-				$checkCount++;
-				$checkTypes['max_crit']=true;
-				if($size>$config['max_crit']) {
-					$ret=2;
-					$message="CRIT:Size ($size) is larger than ".$config['max_crit'];
-				}
-			}
+			$checkCount+=$count;
+			$checkTypes+=$types;
 		}
+
+		// Generates report
+		$ret=max(array_keys($states));
+
+		$message=$this->retState($ret).":".count($states[$ret])." tests in current state";
 
 		if(!$checkCount){
 			$ret=3;
 			$message="UNKNOWN:No checks were done";
 		}
-		$message.=":Checks:$checkCount/".count($checkTypes);
-		return array($ret,$message);
-	}
 
-	private function checkCount()
-	{
-		throw new \Exception('TODO');
+		// Summing performance data
+		$perf=array();
+
+		$perf[]="Checks:$checkCount/".count($checkTypes);
+
+		foreach($states as $ret=>$arr){
+			$perf[]=$this->retState($ret)."=".count($arr);
+		}
+
+		foreach(array(3,2,1) as $cursor){
+			if(array_key_exists($cursor, $states)){
+				foreach($states[$cursor] as $key=>$msg){
+					$perf[]=$key.' '.$msg;
+				}
+			}
+		}
+
+		return array($ret,$message.'|'.implode(': ',$perf));
 	}
 
 	private function checkOldest()

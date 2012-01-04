@@ -410,4 +410,15 @@ class Backup
 			);
 		}
 	}
+
+	/**
+	 * Returns date of backup as string
+	 *
+	 * @return
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getDateAsString()
+	{
+		return $this->creation->format(\DateTime::ISO8601);
+	}
 }
