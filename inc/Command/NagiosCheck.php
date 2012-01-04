@@ -97,10 +97,10 @@ class NagiosCheck implements \Command
 
 		$ret=max(array_keys($states));
 
-		$message=$this->retState($ret).':';
+		$message=self::retState($ret).':';
 
 		foreach($output as $plugin=>$vals){
-			$message.=$plugin."[".$this->retState($vals[0]).':'.$vals[1]."] ";
+			$message.=$plugin."[".self::retState($vals[0]).':'.$vals[1]."] ";
 		}
 
 		$message.="|";
@@ -123,7 +123,7 @@ class NagiosCheck implements \Command
 	 * @return float
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function transformUnit($str, $step=1024)
+	static public function transformUnit($str, $step=1024)
 	{
 		if(is_string($str)){
 			$transform=(float)substr($str,0,-1);
@@ -169,7 +169,7 @@ class NagiosCheck implements \Command
 			$checkTypes['min_warn']=true;
 			if( $value<$levels['min_warn']) {
 				$ret=1;
-				$message=$this->formatMessage($format, $value, 'min_warn', $levels['min_warn']);
+				$message=self::formatMessage($format, $value, 'min_warn', $levels['min_warn']);
 			}
 		}
 
@@ -178,7 +178,7 @@ class NagiosCheck implements \Command
 			$checkTypes['max_warn']=true;
 			if( $value>$levels['max_warn']) {
 				$ret=1;
-				$message=$this->formatMessage($format, $value, 'max_warn', $levels['max_warn']);
+				$message=self::formatMessage($format, $value, 'max_warn', $levels['max_warn']);
 			}
 		}
 
@@ -187,7 +187,7 @@ class NagiosCheck implements \Command
 			$checkTypes['min_crit']=true;
 			if( $value<$levels['min_crit']) {
 				$ret=2;
-				$message=$this->formatMessage($format, $value, 'min_crit', $levels['min_crit']);
+				$message=self::formatMessage($format, $value, 'min_crit', $levels['min_crit']);
 			}
 		}
 
@@ -196,7 +196,7 @@ class NagiosCheck implements \Command
 			$checkTypes['max_crit']=true;
 			if($value>$levels['max_crit']) {
 				$ret=2;
-				$message=$this->formatMessage($format, $value, 'max_crit', $levels['max_crit']);
+				$message=self::formatMessage($format, $value, 'max_crit', $levels['max_crit']);
 			}
 		}
 
@@ -210,7 +210,7 @@ class NagiosCheck implements \Command
 	 * @return
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	public function retState($ret)
+	static public function retState($ret)
 	{
 		$ret_map=array(
 			0 => 'OK',
@@ -235,7 +235,7 @@ class NagiosCheck implements \Command
 	 * @return string Formated string
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function formatMessage($format, $value, $check, $level)
+	static public function formatMessage($format, $value, $check, $level)
 	{
 		return str_replace(
 			array(
@@ -294,7 +294,7 @@ class NagiosCheck implements \Command
 		$configKeys=array( "min_crit", "min_warn", "max_warn", "max_crit");
 		foreach($configKeys as $key){
 			if(array_key_exists($key,$config)){
-				$config[$key]=$this->transformUnit($config[$key],$paramStep);
+				$config[$key]=self::transformUnit($config[$key],$paramStep);
 			}
 		}
 
@@ -340,7 +340,7 @@ class NagiosCheck implements \Command
 		$perf[]="Checks:$checkCount/".count($checkTypes);
 
 		foreach($states as $state=>$arr){
-			$perf[]=$this->retState($state)."=".count($arr);
+			$perf[]=self::retState($state)."=".count($arr);
 		}
 
 		foreach(array(3,2,1) as $cursor){
