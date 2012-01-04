@@ -45,6 +45,9 @@ class ListBackup implements \Command
 	{
 		if($this->bucket!==false){
 			$dir=$store->getDir($this->bucket);
+			if(is_null($dir)){
+				throw new \RuntimeException('Bucket "'.addslashes($this->bucket).'" not found');
+			}
 			$this->listBackup($dir);
 		}else{
 			echo "== List backups\n";
