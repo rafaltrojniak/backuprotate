@@ -1,28 +1,13 @@
 <?php
 
-# Version determination
-$gitdir=dirname(__FILE__).'/.git';
-$version='unknown';
-if(is_dir($gitdir)){
-	$version=exec('git --git-dir='.escapeshellarg($gitdir).' describe --tags', $output, $ret);
-	if($ret){
-		echo "Failed to detect version\n";
-		foreach($output as $line){
-			echo "git:".$line."\n";
-		}
-	}
-}
-# Printing baner
-echo "Backuprotate version $version pid ".posix_getpid().
-	" By Rafał Trójniak <backuprotate@trojniak.net> \n";
+spl_autoload_register();
+spl_autoload_register(function($name){
+	$file='inc/'.str_replace('\\','/',$name).'.php';
+	require_once($file);
+});
+
 
 $config=require('config.php');
-
-function getListFromDir($directory)
-{
-
-	return $list;
-}
 
 $commands=array(
 	// Array(Short,Long,Description)
@@ -50,16 +35,10 @@ foreach($commands as $com){
 	}
 }
 
-$commandQueue=array();
+$commandQueue=new \SplQueue();
 $flags=array(
 	'sizeOnly'=>false,
 );
-
-spl_autoload_register();
-spl_autoload_register(function($name){
-	$file='inc/'.str_replace('\\','/',$name).'.php';
-	require_once($file);
-});
 
 $store=new BackupStore($config);
 
@@ -72,31 +51,31 @@ foreach($options as $option=>$val){
 	switch($option){
 	case 'list':
 	case 'l':
-		$commandQueue[]=new Command\ListBackup($val);
+		$commandQueue->enqueue(new Command\ListBackup($val));
 		break;
 	case 'pickup':
 	case 'p':
-		$commandQueue[]=new Command\ListPickup();
+		$commandQueue->enqueue(new Command\ListPickup());
 		break;
 	case 'clean':
 	case 'c':
-		$commandQueue[]=new Command\Clean();
+		$commandQueue->enqueue(new Command\Clean());
 		break;
 	case 'rotate':
 	case 'r':
-		$commandQueue[]=new Command\Rotate();
+		$commandQueue->enqueue(new Command\Rotate());
 		break;
 	case 'fill':
 	case 'f':
-		$commandQueue[]=new Command\Fill($val);
+		$commandQueue->enqueue(new Command\Fill($val));
 		break;
 	case 'transform':
 	case 't':
-		$commandQueue[]=new Command\Transform($val);
+		$commandQueue->enqueue(new Command\Transform($val));
 		break;
 	case 'del-pickup':
 	case 'd':
-		$commandQueue[]=new Command\DelPickup();
+		$commandQueue->enqueue(new Command\DelPickup());
 		break;
 	case 'size-only':
 	case 's':
@@ -104,17 +83,17 @@ foreach($options as $option=>$val){
 		break;
 	case 'verify':
 	case 'v':
-		$commandQueue[]=new Command\Verify($flags['sizeOnly'], $val);
+		$commandQueue->enqueue(new Command\Verify($flags['sizeOnly'], $val));
 		break;
 	default:
 		fprintf(STDERR,'Option '.addslashes($option)." is unsupported yet\n");
 	case 'build':
 	case 'b':
-		$commandQueue[]=new Command\Build();
+		$commandQueue->enqueue(new Command\Build());
 		break;
 	case 'nagios-check':
 	case 'n':
-		$commandQueue[]=new Command\NagiosCheck($val);
+		$commandQueue->enqueue(new Command\NagiosCheck($val));
 		break;
 	case 'help':
 	case 'h':
@@ -146,9 +125,15 @@ foreach($options as $option=>$val){
 	}
 }
 
+
 if(!count($commandQueue)){
 	echo "Command queue is empty\n";
 	exit(1);
+}
+
+if(! $commandQueue->top() instanceof Command\NagiosCheck)
+{
+	$commandQueue->unshift(new Command\Banner());
 }
 
 try{
