@@ -75,27 +75,42 @@ class NagiosCheck implements \Command
 			if(!array_key_exists('size',$config)){
 				throw new \RuntimeException("No configuration for Size check");
 			}
-			list($ret,$comment) = $this->checkSize($config['size'],$dir);
+			list($ret,$comment,$perf) = $this->checkSize($config['size'],$dir);
 			$states[$ret]=true;
-			$output[]=$comment;
+			$output['size']=array($ret, $comment, $perf);
 		}
 		if(in_array('count', $this->checks)){
-			list($ret,$comment) = $this->checkCount($config['size'],$dir);
+			list($ret,$comment,$perf) = $this->checkCount($config['count'],$dir);
 			$states[$ret]=true;
-			$output[]=$comment;
+			$output['count']=array($ret, $comment, $perf);
 		}
 		if(in_array('oldest', $this->checks)){
-			list($ret,$comment) = $this->checkOldest();
+			list($ret,$comment,$perf) = $this->checkOldest();
 			$states[$ret]=true;
 			$output[]=$comment;
 		}
 		if(in_array('newest', $this->checks)){
-			list($ret,$comment) = $this->checkNewest();
+			list($ret,$comment,$perf) = $this->checkNewest();
 			$states[$ret]=true;
 			$output[]=$comment;
 		}
 
-		echo implode(';',$output);
+		$ret=max(array_keys($states));
+
+		$message=$this->retState($ret).':';
+
+		foreach($output as $plugin=>$vals){
+			$message.=$plugin."[".$this->retState($vals[0]).':'.$vals[1]."] ";
+		}
+
+		$message.="|";
+
+		// Adding performance
+		foreach($output as $plugin=>$vals){
+			$message.=$plugin."[".implode(':',$vals[2])."] ";
+		}
+
+		echo $message;
 
 		return max(array_keys($states));
 	}
@@ -298,25 +313,25 @@ class NagiosCheck implements \Command
 		$states=array();
 		foreach($vals as $key=>$val){
 
-			list($ret, $message, $count, $types)=$this->checkWarnCrit($config, $format, $val);
-			if(!array_key_exists($ret, $states)){
-				$states[$ret]=array();
-			}
+			list($state, $message, $count, $types)=$this->checkWarnCrit($config, $format, $val);
 
-			$states[$ret][$key]=$message;
+			if(!array_key_exists($state, $states)){
+				$states[$state]=array();
+			}
+			$states[$state][$key]=$message;
 
 			$checkCount+=$count;
 			$checkTypes+=$types;
 		}
 
 		// Generates report
-		$ret=max(array_keys($states));
+		$retState=max(array_keys($states));
 
-		$message=$this->retState($ret).":".count($states[$ret])." tests in current state";
+		$message=count($states[$retState])." tests in current state";
 
 		if(!$checkCount){
-			$ret=3;
-			$message="UNKNOWN:No checks were done";
+			$retState=3;
+			$message="No checks were done";
 		}
 
 		// Summing performance data
@@ -324,8 +339,8 @@ class NagiosCheck implements \Command
 
 		$perf[]="Checks:$checkCount/".count($checkTypes);
 
-		foreach($states as $ret=>$arr){
-			$perf[]=$this->retState($ret)."=".count($arr);
+		foreach($states as $state=>$arr){
+			$perf[]=$this->retState($state)."=".count($arr);
 		}
 
 		foreach(array(3,2,1) as $cursor){
@@ -336,7 +351,7 @@ class NagiosCheck implements \Command
 			}
 		}
 
-		return array($ret,$message.'|'.implode(': ',$perf));
+		return array($retState, $message, $perf);
 	}
 
 	private function checkOldest()
