@@ -80,14 +80,14 @@ class NagiosCheck implements \Command
 			$output['count']=array($ret, $comment, $perf);
 		}
 		if(in_array('oldest', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkOldest();
+			list($ret,$comment,$perf) = $this->checkOldest($dir);
 			$states[$ret]=true;
-			$output[]=$comment;
+			$output['oldest']=$comment;
 		}
 		if(in_array('newest', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkNewest();
+			list($ret,$comment,$perf) = $this->checkNewest($dir);
 			$states[$ret]=true;
-			$output[]=$comment;
+			$output['newest']=$comment;
 		}
 
 		$ret=max(array_keys($states));
@@ -368,13 +368,59 @@ class NagiosCheck implements \Command
 		return array($retState, $message, $perf);
 	}
 
-	private function checkOldest()
+	/**
+	 * Checks if oldest backup in the directory is below limits
+	 *
+	 * @param \BackupDir $dir
+	 * @return array consisting of return state and message
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function checkOldest(\BackupDir $dir)
 	{
-		throw new \Exception('TODO');
+		//TODO Parse configs
+		$levels=array(
+			'min_crit'=>time()-3600*24*5000,
+			'min_warn'=>time()-3600*24*500,
+			'max_crit'=>time(),
+		);
+		// Get times
+		$backups=$dir->getBackups();
+		$times=array_keys($backups);
+		$oldest=min($times);
+
+		// Checks times
+		$format = "%val% (%check% %level%)" ;
+		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
+
+		//TODO Performance data
+		return array($retState, array($retState,$message,array()), array());
 	}
 
-	private function checkNewest()
+	/**
+	 * Checks if newest backup in backupdir is above limits
+	 *
+	 * @param \BackupDir $dir
+	 * @return array consisting of return state and message
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function checkNewest(\BackupDir $dir)
 	{
-		throw new \Exception('TODO');
+		//TODO Parse configs
+		$levels=array(
+			'min_crit'=>time()-3600*24*5000,
+			'min_warn'=>time()-3600*24,
+			'max_crit'=>time(),
+		);
+		// Get times
+		$backups=$dir->getBackups();
+		$times=array_keys($backups);
+		$oldest=max($times);
+
+		// Checks times
+		$format = "%val% (%check% %level%)" ;
+		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
+
+		//TODO Performance data
+		return array($retState, array($retState,$message,array()), array());
 	}
 }
