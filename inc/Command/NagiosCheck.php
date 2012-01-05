@@ -69,18 +69,13 @@ class NagiosCheck implements \Command
 		$states=array(0=>true);
 		$output=array();
 
-		$config=$store->getChecksConfig();
-
 		if(in_array('size', $this->checks)){
-			if(!array_key_exists('size',$config)){
-				throw new \RuntimeException("No configuration for Size check");
-			}
-			list($ret,$comment,$perf) = $this->checkSize($config['size'],$dir);
+			list($ret,$comment,$perf) = $this->checkSize($dir);
 			$states[$ret]=true;
 			$output['size']=array($ret, $comment, $perf);
 		}
 		if(in_array('count', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkCount($config['count'],$dir);
+			list($ret,$comment,$perf) = $this->checkCount($dir);
 			$states[$ret]=true;
 			$output['count']=array($ret, $comment, $perf);
 		}
@@ -97,7 +92,7 @@ class NagiosCheck implements \Command
 
 		$ret=max(array_keys($states));
 
-		$message=self::retState($ret).':';
+		$message=self::retState($ret).';';
 
 		foreach($output as $plugin=>$vals){
 			$message.=$plugin."[".self::retState($vals[0]).':'.$vals[1]."] ";
@@ -255,27 +250,45 @@ class NagiosCheck implements \Command
 	/**
 	 * Checks size of the backups in the directory
 	 *
-	 * @param array $config
 	 * @param \BackupDir $dir
 	 * @return array consisting of return state and message
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function checkSize($config, \BackupDir $dir)
+	private function checkSize(\BackupDir $dir)
 	{
-		return $this->checkByParam($config, $dir, 'getSumSize', 1024);
+		return $this->checkByParam('size', $dir, 'getSumSize', 1024);
 	}
 
 	/**
 	 * Checks count of files in backups
 	 *
-	 * @param array $config
 	 * @param \BackupDir $dir
 	 * @return array consisting of return state and message
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function checkCount($config, \BackupDir $dir)
+	private function checkCount(\BackupDir $dir)
 	{
-		return $this->checkByParam($config, $dir, 'getFileCount', 1000);
+		return $this->checkByParam('count', $dir, 'getFileCount', 1000);
+	}
+
+	/**
+	 * Gets config for section and backup directory name
+	 *
+	 * @param string $section Section of the config (size, count..)
+	 * @param \BackupStore $store Store of the backupdirs
+	 * @param string $directory backupdir to search for additional config
+	 * @return array Configuration data
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	private function getConfig($section, $directory)
+	{
+		$config=$directory->getCheckConfigs();
+
+		if(!array_key_exists($section, $config)){
+			throw new \RuntimeException("No configuration for Size check");
+		}
+
+		return $config[$section];
 	}
 
 	/**
@@ -288,8 +301,9 @@ class NagiosCheck implements \Command
 	 * @return array consisting of return state and message
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	private function checkByParam($config, \BackupDir $dir, $paramGetter, $paramStep)
+	private function checkByParam($configSection, \BackupDir $dir, $paramGetter, $paramStep)
 	{
+		$config = $this->getConfig($configSection, $dir);
 		// Transform size to bytes
 		$configKeys=array( "min_crit", "min_warn", "max_warn", "max_crit");
 		foreach($configKeys as $key){
