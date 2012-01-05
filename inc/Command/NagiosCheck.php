@@ -369,6 +369,55 @@ class NagiosCheck implements \Command
 	}
 
 	/**
+	 * Parse configs to check levels
+	 * uses age_ and at_ keys with crit and warn postfixes
+	 *
+	 * The at_* keys has priority over age_*
+	 *
+	 * @param array $config Initial config
+	 * @return array Array consisting of min_crit min_warn max_crit keys
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function parseAges($config)
+	{
+		$now=new \DateTime();
+
+		$parseAt=function ($at){
+			$ret= \DateTime::createFromFormat( \DateTime::ISO8601,$at);
+			if( !$ret instanceof  \DateTime){
+				throw new \RuntimeException('Cannot parse time from '.$at);
+			}
+			return $ret->getTimestamp();
+		};
+
+		$parseAge=function ($age) use ($now){
+			return $now->sub(new \DateInterval($age));
+		};
+
+
+		$limits=array(
+			'max_crit'=>$now->getTimestamp()+10 , // Prepare for using thesame command as creating
+		);
+
+		if(array_key_exists('age_warn',$config)){
+			$limits['min_warn']= $parseAge($config['age_warn']);
+		}
+		if(array_key_exists('age_crit',$config)){
+			$limits['min_crit']= $parseAge($config['age_crit']);
+		}
+
+		if(array_key_exists('at_warn',$config)){
+			$limits['min_warn']= $parseAt($config['at_warn']);
+		}
+		if(array_key_exists('at_crit',$config)){
+			$limits['min_crit']= $parseAt($config['at_crit']);
+		}
+
+		return $limits;
+
+	}
+
+	/**
 	 * Checks if oldest backup in the directory is below limits
 	 *
 	 * @param \BackupDir $dir
@@ -377,23 +426,7 @@ class NagiosCheck implements \Command
 	 */
 	private function checkOldest(\BackupDir $dir)
 	{
-		//TODO Parse configs
-		$levels=array(
-			'min_crit'=>time()-3600*24*5000,
-			'min_warn'=>time()-3600*24*500,
-			'max_crit'=>time(),
-		);
-		// Get times
-		$backups=$dir->getBackups();
-		$times=array_keys($backups);
-		$oldest=min($times);
-
-		// Checks times
-		$format = "%val% (%check% %level%)" ;
-		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
-
-		//TODO Performance data
-		return array($retState, array($retState,$message,array()), array());
+		return $this->checkByAge($dir, 'min','oldest');
 	}
 
 	/**
@@ -405,22 +438,34 @@ class NagiosCheck implements \Command
 	 */
 	private function checkNewest(\BackupDir $dir)
 	{
-		//TODO Parse configs
-		$levels=array(
-			'min_crit'=>time()-3600*24*5000,
-			'min_warn'=>time()-3600*24,
-			'max_crit'=>time(),
-		);
+		return $this->checkByAge($dir, 'max','newest');
+	}
+
+	/**
+	 * Runs the standart age-based (oldes, newest) check on the times of the backups
+	 *
+	 * @param \BackupDir $dir
+	 * @param string $calc Calculation function (min or max)
+	 * @param string $key Key for the backup
+	 * @return array consisting of return state and message
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function checkByAge(\BackupDir $dir, $calc, $key)
+	{
+		// Parse configs
+		$config = $this->getConfig($key, $dir);
+		$levels = $this->parseAges($config);
+
 		// Get times
 		$backups=$dir->getBackups();
 		$times=array_keys($backups);
-		$oldest=max($times);
+		$oldest=$calc($times);
 
 		// Checks times
 		$format = "%val% (%check% %level%)" ;
 		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
 
 		//TODO Performance data
-		return array($retState, array($retState,$message,array()), array());
+		return array($retState, array($retState,$message,array()), array('test'));
 	}
 }
