@@ -60,7 +60,7 @@ class BackupStore
 			$this->dirs=array();
 			foreach($this->config['backups'] as $id=>$cfg)
 			{
-				$this->dirs[$id]=new BackupDir($cfg);
+				$this->dirs[$id]=new BackupDir($cfg, $this);
 			}
 		}
 		return $this->dirs;
@@ -75,7 +75,7 @@ class BackupStore
 	public function getPickup()
 	{
 		if(is_null($this->pickup)){
-			$this->pickup=new BackupDir( $this->config['pickup'] );
+			$this->pickup=new BackupDir( $this->config['pickup'] ,$this);
 		}
 		return $this->pickup;
 	}

@@ -10,6 +10,11 @@ class BackupDir
 {
 
 	/**
+	 * Supplied BackupStore
+	 */
+	private $store;
+
+	/**
 	 * Path to that backupdir
 	 */
 	private $config;
@@ -43,11 +48,13 @@ class BackupDir
 	 * Builds from the config
 	 *
 	 * @param array $config Config from $config['backups']
+	 * @param \BackupStore $store Store that backupdir is associated with
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
-	function __construct($config)
+	function __construct($config, \BackupStore $store)
 	{
 		$this->config=$config;
+		$this->store=$store;
 	}
 
 	/**
@@ -256,5 +263,39 @@ class BackupDir
 			$this->lockResource = fopen($this->getPath(),'r');
 		}
 		flock($this->lockResource,LOCK_EX);
+	}
+
+	/**
+	 * Returns configs for checks
+	 *
+	 * @return array configuration data for that backupdir
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function getCheckConfigs()
+	{
+		$config=$this->store->getChecksConfig();
+		if(array_key_exists('checks',$this->config)){
+			$ownConfig=$this->config['checks'];
+			// Merges recursively global config with local
+			$mergeRec=function ($base, $local) use (&$mergeRec)
+			{
+				foreach($local as $key=>$val)
+				{
+					if(is_int($key)){
+						$base[]=$val;
+					}else{
+						if(is_array($val) and array_key_exists($key, $base)){
+							$base[$key]=$mergeRec($base[$key],$val);
+						}else{
+							$base[$key]=$val;
+						}
+					}
+				}
+				return $base;
+			};
+			$config=$mergeRec($config, $ownConfig);
+		}
+
+		return $config;
 	}
 }
