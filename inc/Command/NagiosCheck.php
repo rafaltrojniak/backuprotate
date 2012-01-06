@@ -105,9 +105,9 @@ class NagiosCheck implements \Command
 			$message.=$plugin."[".implode(':',$vals[2])."] ";
 		}
 
-		echo $message;
+		echo $message."\n";
 
-		return max(array_keys($states));
+		return $ret;
 	}
 
 	/**
