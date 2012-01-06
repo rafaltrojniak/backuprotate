@@ -70,24 +70,24 @@ class NagiosCheck implements \Command
 		$output=array();
 
 		if(in_array('size', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkSize($dir);
+			list($ret,$comment,$perf) = $results = $this->checkSize($dir);
 			$states[$ret]=true;
-			$output['size']=array($ret, $comment, $perf);
+			$output['size']=$results;
 		}
 		if(in_array('count', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkCount($dir);
+			list($ret,$comment,$perf) = $results =  $this->checkCount($dir);
 			$states[$ret]=true;
-			$output['count']=array($ret, $comment, $perf);
+			$output['count']=$results;
 		}
 		if(in_array('oldest', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkOldest($dir);
+			list($ret,$comment,$perf) = $results = $this->checkOldest($dir);
 			$states[$ret]=true;
-			$output['oldest']=$comment;
+			$output['oldest']= $results;
 		}
 		if(in_array('newest', $this->checks)){
-			list($ret,$comment,$perf) = $this->checkNewest($dir);
+			list($ret,$comment,$perf) = $results = $this->checkNewest($dir);
 			$states[$ret]=true;
-			$output['newest']=$comment;
+			$output['newest']=$results;
 		}
 
 		$ret=max(array_keys($states));
@@ -251,7 +251,7 @@ class NagiosCheck implements \Command
 	 * Checks size of the backups in the directory
 	 *
 	 * @param \BackupDir $dir
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function checkSize(\BackupDir $dir)
@@ -263,7 +263,7 @@ class NagiosCheck implements \Command
 	 * Checks count of files in backups
 	 *
 	 * @param \BackupDir $dir
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function checkCount(\BackupDir $dir)
@@ -277,7 +277,7 @@ class NagiosCheck implements \Command
 	 * @param string $section Section of the config (size, count..)
 	 * @param \BackupStore $store Store of the backupdirs
 	 * @param string $directory backupdir to search for additional config
-	 * @return array Configuration data
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function getConfig($section, $directory)
@@ -298,7 +298,7 @@ class NagiosCheck implements \Command
 	 * @param \BackupDir $dir Backupdir to test
 	 * @param $paramGetter Param getter
 	 * @param $paramStep  Param unit transformation step
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function checkByParam($configSection, \BackupDir $dir, $paramGetter, $paramStep)
@@ -421,7 +421,7 @@ class NagiosCheck implements \Command
 	 * Checks if oldest backup in the directory is below limits
 	 *
 	 * @param \BackupDir $dir
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function checkOldest(\BackupDir $dir)
@@ -433,7 +433,7 @@ class NagiosCheck implements \Command
 	 * Checks if newest backup in backupdir is above limits
 	 *
 	 * @param \BackupDir $dir
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	private function checkNewest(\BackupDir $dir)
@@ -447,7 +447,7 @@ class NagiosCheck implements \Command
 	 * @param \BackupDir $dir
 	 * @param string $calc Calculation function (min or max)
 	 * @param string $key Key for the backup
-	 * @return array consisting of return state and message
+	 * @return array  in form of (int returnsttate, string message, array performanceData)
 	 * @author : Rafał Trójniak rafal@trojniak.net
 	 */
 	public function checkByAge(\BackupDir $dir, $calc, $key)
@@ -466,6 +466,6 @@ class NagiosCheck implements \Command
 		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
 
 		//TODO Performance data
-		return array($retState, array($retState,$message,array()), array('test'));
+		return array($retState, $message, array('test'));
 	}
 }
