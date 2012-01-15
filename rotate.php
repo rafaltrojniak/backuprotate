@@ -125,7 +125,6 @@ foreach($options as $option=>$val){
 	}
 }
 
-
 if(!count($commandQueue)){
 	echo "Command queue is empty\n";
 	exit(1);
