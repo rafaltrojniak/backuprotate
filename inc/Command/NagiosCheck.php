@@ -92,17 +92,17 @@ class NagiosCheck implements \Command
 
 		$ret=max(array_keys($states));
 
-		$message=$this->retState($ret).';';
+		$message=array();
 
 		foreach($output as $plugin=>$vals){
-			$message.=$plugin."[".$this->retState($vals[0]).':'.$vals[1]."] ";
+			$message[]=$plugin."[".$this->retState($vals[0]).':'.$vals[1]."]";
 		}
 
-		$message.="|";
+		$message=implode('; ',$message)."|";
 
 		// Adding performance
 		foreach($output as $plugin=>$vals){
-			$message.=$plugin."[".implode(':',$vals[2])."] ";
+			$message.=$plugin."[".implode(' ',$vals[2])."] ";
 		}
 
 		echo $message."\n";
@@ -158,7 +158,7 @@ class NagiosCheck implements \Command
 		$checkCount=0;
 		$checkTypes=array();
 		$ret=0;
-		$message="OK";
+		$message="";
 		if(array_key_exists('min_warn',$levels)){
 			$checkCount++;
 			$checkTypes['min_warn']=true;
@@ -320,7 +320,7 @@ class NagiosCheck implements \Command
 		}
 
 		// Runs checks
-		$format = "%val% (%check% %level%)" ;
+		$format = "=%val% (%check%=%level%)" ;
 
 		$checkTypes=array();
 		$checkCount=0;
@@ -459,13 +459,14 @@ class NagiosCheck implements \Command
 		// Get times
 		$backups=$dir->getBackups();
 		$times=array_keys($backups);
-		$oldest=$calc($times);
+		$picked=$calc($times);
 
 		// Checks times
 		$format = "%val% (%check% %level%)" ;
-		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $oldest);
+		list($retState , $message, $count, $types)= $this->checkWarnCrit($levels, $format, $picked);
 
-		//TODO Performance data
-		return array($retState, $message, array('test'));
+		$performance='picked:'.$backups[$picked]->getDateAsString();
+
+		return array($retState, $message, array($performance));
 	}
 }
