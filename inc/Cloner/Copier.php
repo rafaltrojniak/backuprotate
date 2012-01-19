@@ -18,6 +18,16 @@ class Copier implements \Cloner
 {
 
 	/**
+	 * Empty constructor
+	 *
+	 * @param array $config
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function __construct($config)
+	{
+	}
+
+	/**
 	 *  Clones backup by recursive copying directory
 	 *
 	 * @param \Backup $toClone

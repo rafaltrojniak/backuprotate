@@ -35,6 +35,8 @@ Directories from the pickup dir will be linked to the storing dirs according to 
 * rotate_opts - rotation algorithm configuration options ( depending on the algorithm )
 * clean - cleaning algorithm
 * clean_opts - cleaning algorithm configuration (depending on the algorithm)
+* copier - Copier algorithm name
+* copier_opts - Copier algorithm configuration
 
 ==== Rotating algorithm ====
 
@@ -54,6 +56,21 @@ Examples :
 ===== count =====
 
 Throws out all the backups over the count value.  It throws oldest backups. _IMPORTANT_ If you have duplicates in group rotating (many backups in the same group) it can rotate oldest backups and throw them out.
+
+==== Cloning/Copying algorithm ====
+
+===== Copier =====
+This algorithm just copies all of the file sto new destination
+
+===== Linker =====
+This algorithm makes hard link for each file from the original directory to the new one.
+
+===== GPGCrypter=====
+This algorithm lets encrypt backupdir while cloning.
+It encrypts each file one-by-one
+Supported options:
+- directOpen - Tre if file opening should be done direct from the gpg tool
+- enc_key - ID of the key to use while encrypting
 
 = TODO =
 

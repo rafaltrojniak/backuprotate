@@ -159,7 +159,11 @@ class BackupDir
 				$class=ucfirst($this->config['copier']);
 			}
 			$class='Cloner\\'.$class;
-			$this->cloner=new $class;
+			$options=null;
+			if(array_key_exists('copier_opts',$this->config)){
+				$options=$this->config['copier_opts'];
+			}
+			$this->cloner=new $class($options);
 		}
 		return $this->cloner;
 	}

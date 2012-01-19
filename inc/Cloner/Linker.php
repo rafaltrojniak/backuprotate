@@ -18,6 +18,16 @@ class Linker implements \Cloner
 {
 
 	/**
+	 * Empty constructor
+	 *
+	 * @param config $config
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function __construct($config)
+	{
+	}
+
+	/**
 	 * Clones backup by hardlinking files from one directory
 	 * to another
 	 *
