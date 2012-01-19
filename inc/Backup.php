@@ -6,7 +6,7 @@
  * Backup can containt sumfile that contains sizes, checksums and names
  * of files in backup. This file can be used for verification.
  **/
-class Backup
+class Backup implements IteratorAggregate
 {
 
 	/**
@@ -420,5 +420,15 @@ class Backup
 	public function getDateAsString()
 	{
 		return $this->creation->format(\DateTime::ISO8601);
+	}
+
+	public function getIterator()
+	{
+		$sumFilePath=$this->getSumfilePath();
+		if(!is_readable($sumFilePath)){
+			return 'File is not readable "'.addslashes($sumFilePath).'"';
+		}
+		$file = new SplFileObject($sumFilePath, 'r');
+		return new BackupFileIterator($file, $this);
 	}
 }
