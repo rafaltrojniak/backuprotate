@@ -97,31 +97,7 @@ foreach($options as $option=>$val){
 		break;
 	case 'help':
 	case 'h':
-		fprintf(STDERR,"Options :\n");
-		foreach($commands  as $com){
-			list($short,$long,$description)=$com;
-			$options=array();
-			$param=null;
-			if(count($com)>=4){
-				$param=$com[3];
-				if(strpos($short,'::')!==false)
-				{
-					$param="[$param]";
-				}
-				$param='='.$param;
-				$short=trim($short,':');
-				$long=trim($long,':');
-			}
-			if(!is_null($short)){
-				$options[]='-'.$short;
-			}
-			if(!is_null($long)){
-				$options[]='--'.$long;
-			}
-			fprintf(STDERR,"\t".implode('|',$options)."$param\t$description\n");
-		}
-		exit();
-		break;
+		$commandQueue->enqueue(new Command\Help($commands));
 	}
 }
 
