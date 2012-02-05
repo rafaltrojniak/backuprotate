@@ -112,34 +112,24 @@ class Backup implements IteratorAggregate
 
 		$this->verification[$sizeOnly] = false;
 
-		$sumFilePath=$this->getSumfilePath();
-		if(!is_readable($sumFilePath)){
-			return 'File is not readable "'.addslashes($sumFilePath).'"';
-		}
-		$sumfile=fopen($sumFilePath, 'r');
-		if($sumfile === false){
-			return 'Failed to read file "'.addslashes($sumFilePath).'"';
+		$iterator=$this->getIterator();
+
+		if(!$iterator instanceof BackupFileIterator){
+			return $iterator;
 		}
 
-		while(!feof($sumfile))
+		foreach($iterator as $info)
 		{
-			$tokens =fgetcsv($sumfile);
-			if($tokens===false and feof($sumfile)) {
-				continue;
-			}
-
-			list($size, $hash, $name ) = $tokens;
-
-			$filePath=$this->path.'/'.$name;
+			$filePath=$info->getPath();
 			if(!is_readable($filePath)){
 				return 'Canot read file "'.
 					addslashes($filePath).'"';
 			}
-			if($size!=filesize($filePath)){
+			if($info->getSize()!=filesize($filePath)){
 				return 'File size does not match for "'.
 					addslashes($filePath).'"';
 			}
-			if(!$sizeOnly and $hash!=sha1_file($filePath)){
+			if(!$sizeOnly and $info->getSum()!=sha1_file($filePath)){
 				return 'SHA1 sum does not match for "'.
 					addslashes($filePath).'"';
 			}
@@ -295,7 +285,8 @@ class Backup implements IteratorAggregate
 			}
 
 			if(!$pushed and !rmdir($dirPath)){
-				throw new \RuntimeException( 'Failed to remove directory "'.$path.'"' );
+				throw new \RuntimeException(
+					'Failed to remove directory "'.$path.'"' );
 			}
 
 		}
@@ -310,36 +301,37 @@ class Backup implements IteratorAggregate
 	 */
 	public function transform()
 	{
-		$oldfilePath=$this->path.'/checksums';
-		$oldDb = file($oldfilePath);
-		if($oldDb===false){
-			throw new \RuntimeException("Failed to read old sumfile : $oldfilePath");
+
+		$iterator=$this->getIterator();
+
+		if(!$iterator instanceof BackupFileIterator){
+			throw new \RuntimeException($iterator);
 		}
 
 		$newfilePath=$this->getSumfilePath();
 		$newfile = fopen($newfilePath, "w");
 		if($newfile===false){
-			throw new \RuntimeException("Failed opening  newfile :  $newfilePath");
+			throw new \RuntimeException(
+				"Failed opening  newfile :  $newfilePath");
 		}
 
-		foreach($oldDb as $sumLine){
-
-			// Getting old
-			$tokens= explode(" ",trim($sumLine,"\n"));
-			$size=array_shift($tokens);
-			$hash=array_shift($tokens);
-			$name=implode($tokens);
+		foreach($iterator as $info){
 
 			// Creating new
-			$fields=array($hash,$size,$name);
+			$fields=array(
+				$info->getSum(),
+				$info->getSize(),
+				$info->getName());
 			if(fputcsv($newfile, $fields, "," )===false){
-				throw new \RuntimeException("Failed writing to newfile :  $newfilePath");
+				throw new \RuntimeException(
+					"Failed writing to newfile :  $newfilePath");
 			}
 
 		}
 
 		if(fclose($newfile )===false){
-			throw new \RuntimeException("Failed writing to newfile :  $newfilePath");
+			throw new \RuntimeException(
+				"Failed writing to newfile :  $newfilePath");
 		}
 		return true;
 	}
@@ -383,24 +375,15 @@ class Backup implements IteratorAggregate
 			$size=0;
 			$count=0;
 
-			$sumFilePath=$this->getSumfilePath();
-			if(!is_readable($sumFilePath)){
-				return 'File is not readable "'.addslashes($sumFilePath).'"';
-			}
-			$sumfile=fopen($sumFilePath, 'r');
-			if($sumfile === false){
-				return 'Failed to read file "'.addslashes($sumFilePath).'"';
+			$iterator=$this->getIterator();
+
+			if(!$iterator instanceof BackupFileIterator){
+				return $iterator;
 			}
 
-			while(!feof($sumfile))
+			foreach($iterator as $info)
 			{
-				$tokens =fgetcsv($sumfile);
-				if($tokens===false and feof($sumfile)) {
-					continue;
-				}
-
-				list($curSize, $hash, $name ) = $tokens;
-				$size+=$curSize;
+				$size+=$info->getSize();
 				$count++;
 			}
 

@@ -121,32 +121,41 @@ class BackupFileIterator implements Iterator
 		$row=$this->file->fgetcsv();
 
 		// Check for end of file
-		if(
-			$this->file->eof()
-			or ( // Last empty line
-				is_array($row)
-				and count($row)==1
-				and is_null($row[0])
-				and $this->file->getSize()==$this->file->ftell()
-			)
-		){
+		if( $row === false or is_null($row)){
+
+			// Determine the error
+			if( $this->file->eof() ) {
+				$this->position=null;
+				$this->row=null;
+				return;
+			}
+
+			throw new \RuntimeException('Unknown error');
+		}
+
+		// Not an array
+		if( !is_array($row) ){
+			throw new \RuntimeException(
+				'Got '.gettype($row).' on '. $this->file->ftell().' in file '.$this->file->getPath());
+		}
+
+		// Last line with signle null field
+		if(count($row)==1 and is_null($row[0])){
 			$this->position=null;
 			$this->row=null;
 			return;
 		}
 
-		// Failed to read CSV
-		if($row===false) {
+		// Wrong number of entries in the row
+		if( count($row)!=3){
 			throw new \RuntimeException(
-				'Failed to read from '.
+				'Failed to read correct number of rows '.count($row).' on '.
 				$this->file->ftell().' in file '.$this->file->getPath());
 		}
 
-		// Wrong number of entries in the row
-		if(is_array($row) and count($row)!=3){
-			throw new \RuntimeException(
-				'Failed to read correct number of rows on '.
-				$this->file->ftell().' in file '.$this->file->getPath());
+		// Check the format
+		if( is_null($row[0]) or is_null($row[1]) or is_null($row[2])){
+			throw new \RuntimeException('Some of the fields is null');
 		}
 
 		// Creating entry
