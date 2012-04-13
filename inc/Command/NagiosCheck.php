@@ -391,7 +391,7 @@ class NagiosCheck implements \Command
 		};
 
 		$parseAge=function ($age) use ($now){
-			return $now->sub(new \DateInterval($age));
+			return $now->sub(new \DateInterval($age))->getTimestamp();
 		};
 
 
