@@ -86,35 +86,45 @@ class GPGCrypter implements \Cloner
 		mkdir($destDir);
 		// Crypt files
 		foreach($toClone as $item){
-			$this->cryptFile($item->getName(), $item->getPath(), $destDir);
+			$newName=
+				$destDir.
+				DIRECTORY_SEPARATOR.
+				$item->getName().
+				$this->extension;
+			$this->cryptFile($item->getPath(), $newName);
 		}
 		// Crypt old sumfile
-		$this->cryptFile(\Backup::SUMFILE, $toClone->getSumfilePath(), $destDir);
-	}
+			$newName=
+				$destDir.
+				DIRECTORY_SEPARATOR.
+				\Backup::SUMFILE.
+				$this->extension;
+		$this->cryptFile($toClone->getSumfilePath(),$newName);
 
-	public function cryptFile($name, $path,$destDir)
-	{
-		$newName=
-			$destDir.
-			DIRECTORY_SEPARATOR.
-			$name.
-			$this->extension;
-
-		// Create directory if needed
-		$newDir=dirname($newName);
-		if(!file_exists($newDir)){
-			mkdir($newDir,0777,true);
-		}
-
-		//Crypt single file
-		$this->crypter->encryptFile(
-			$path,
-			$newName,
-			false);
-
-		//Add file to new sumfile
 		$newBackup=\Backup::create(new \SplFileInfo($destDir));
 		$newBackup->fill();
+	}
+
+	/**
+	 * Encrypts single file
+	 *
+	 * @param $src_file Source file name
+	 * @param $dst_file Destinationf file name
+	 * @return
+	 * @author : Rafał Trójniak rafal@trojniak.net
+	 */
+	public function cryptFile($src_file, $dst_file)
+	{
+
+		$directory=dirname($dst_file);
+		if(!is_dir($directory)){
+			mkdir($directory);
+		}
+		//Crypt single file
+		$this->crypter->encryptFile(
+			$src_file,
+			$dst_file,
+			false);
 	}
 
 }
