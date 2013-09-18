@@ -30,6 +30,8 @@ class Count implements \CleanerAlgo
 	 */
 	public function __construct($config)
 	{
+		if(!array_key_exists('count',$config))
+			throw new ConfigurationException('Count not set');
 		$this->count=$config['count'];
 	}
 
